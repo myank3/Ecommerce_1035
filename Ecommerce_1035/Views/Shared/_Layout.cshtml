@@ -32,6 +32,24 @@
 
     <title>@ViewData["Title"] · Book Store</title>
 
+    <!-- Standard Favicon (Browser Tabs) -->
+    <link rel="icon" type="image/png" href="~/logo.png" asp-append-version="true" />
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" asp-append-version="true" />
+
+    <!-- Google Search Snippet, Android & Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="~/logo.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="~/logo.png" asp-append-version="true" />
+
+    <!-- Open Graph Metadata (WhatsApp, LinkedIn, Twitter/X previews) -->
+    <meta property="og:title" content="@(ViewData["Title"] ?? "Book Store") · Bookshelf" />
+    <meta property="og:description" content="@(ViewData["Description"] ?? "Book Store — fine books, carefully chosen.")" />
+    <meta property="og:image" content="https://bookshelff.runasp.net/logo.png" />
+    <meta property="og:url" content="https://bookshelff.runasp.net" />
+    <meta property="og:type" content="website" />
+
+   
+    </script>
+
     <link rel="preconnect" href="https://cdn.datatables.net" />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -48,7 +66,6 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Ecommerce_1035.styles.css" asp-append-version="true" />
-
     <style>
         :root {
             /* ===== PALETTE ===== */

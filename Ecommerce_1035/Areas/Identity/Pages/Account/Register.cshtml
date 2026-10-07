@@ -1,0 +1,685 @@
+@page
+@using Ecommerce_1035.Utilities
+@model RegisterModel
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+@section Head {
+    <style>
+        /* ============================================================
+                   REGISTER PAGE
+                ============================================================ */
+        .register-page {
+            --brand-1: #6c2bd9;
+            --brand-2: #8b3dff;
+            --brand-3: #4c1d95;
+            --brand-soft: #f3f0fb;
+            --ink: #14110d;
+            --ink-soft: #5c5449;
+            --paper: #f7f4ee;
+            --paper-2: #ece4d3;
+            --rule: #cfc4ac;
+            --rule-dark: #9c8a68;
+            --gold: #8a6c34;
+            --accent: #6b2a2a;
+            --serif: 'Cormorant Garamond', Georgia, serif;
+            --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .register-wrap {
+            max-width: 1080px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .register-card {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(20,10,50,.06), 0 24px 60px -30px rgba(20,10,50,.35);
+        }
+
+        /* ============================================================
+                   FORM SIDE
+                ============================================================ */
+        .form-side {
+            padding: 48px 52px;
+        }
+
+            .form-side .brand-mark {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                font-family: var(--serif);
+                font-size: 20px;
+                font-weight: 700;
+                color: var(--ink);
+                text-decoration: none;
+                margin-bottom: 32px;
+            }
+
+                .form-side .brand-mark em {
+                    font-style: italic;
+                    font-weight: 400;
+                    color: var(--brand-1);
+                }
+
+                .form-side .brand-mark .dot {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 8px;
+                    background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+                    display: grid;
+                    place-items: center;
+                    color: #fff;
+                    font-size: 14px;
+                }
+
+            .form-side h1 {
+                font-family: var(--serif);
+                font-size: 2rem;
+                font-weight: 700;
+                letter-spacing: -.01em;
+                margin: 0 0 8px;
+                color: var(--ink);
+            }
+
+            .form-side .subtitle {
+                font-size: 14.5px;
+                color: var(--ink-soft);
+                margin: 0 0 32px;
+                line-height: 1.55;
+            }
+
+        /* ---------- Section labels ---------- */
+        .form-section-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--sans);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin: 32px 0 16px;
+        }
+
+            .form-section-label::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: var(--rule);
+            }
+
+            .form-section-label:first-of-type {
+                margin-top: 0;
+            }
+
+        /* ---------- Inputs ---------- */
+        .field {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+            .field .form-control,
+            .field .form-select {
+                width: 100%;
+                background: var(--paper);
+                border: 1px solid var(--rule);
+                border-radius: 8px;
+                padding: 14px 16px 14px 44px;
+                font-family: var(--sans);
+                font-size: 14.5px;
+                color: var(--ink);
+                transition: border-color .15s, background .15s, box-shadow .15s;
+                height: auto;
+            }
+
+            .field .form-select {
+                padding-left: 16px;
+                background-image: none;
+            }
+
+            .field .form-control::placeholder {
+                color: #a89d8a;
+            }
+
+            .field .form-control:focus,
+            .field .form-select:focus {
+                outline: none;
+                border-color: var(--brand-1);
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(108,43,217,.12);
+            }
+
+            .field .form-control.input-validation-error,
+            .field .form-select.input-validation-error {
+                border-color: #dc2626;
+                background: #fef2f2;
+            }
+
+            .field .field-icon {
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--rule-dark);
+                font-size: 14px;
+                pointer-events: none;
+                transition: color .15s;
+            }
+
+            .field .form-control:focus ~ .field-icon {
+                color: var(--brand-1);
+            }
+
+            .field .validation-message {
+                display: block;
+                font-family: var(--sans);
+                font-size: 12px;
+                color: #dc2626;
+                margin-top: 4px;
+                padding-left: 4px;
+            }
+
+        /* Field row */
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+            .field-row.three {
+                grid-template-columns: 2fr 1fr 1fr;
+            }
+
+        /* ---------- Submit button ---------- */
+        .btn-register {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 24px;
+            font-family: var(--sans);
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: .01em;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: transform .15s, box-shadow .15s;
+            box-shadow: 0 8px 22px -10px rgba(108,43,217,.55);
+        }
+
+            .btn-register:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 12px 28px -10px rgba(108,43,217,.7);
+            }
+
+            .btn-register:active {
+                transform: translateY(0);
+            }
+
+        /* ---------- "Already have account" ---------- */
+        .signin-prompt {
+            text-align: center;
+            font-family: var(--sans);
+            font-size: 13.5px;
+            color: var(--ink-soft);
+            margin: 20px 0 0;
+        }
+
+            .signin-prompt a {
+                color: var(--brand-1);
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+                .signin-prompt a:hover {
+                    text-decoration: underline;
+                }
+
+        /* ---------- Validation summary ---------- */
+        .validation-summary {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 4px solid #dc2626;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 22px;
+            font-size: 13.5px;
+            color: #991b1b;
+        }
+
+            .validation-summary:empty,
+            .validation-summary.validation-summary-valid {
+                display: none;
+            }
+
+            .validation-summary ul {
+                margin: 4px 0 0;
+                padding-left: 18px;
+            }
+
+                .validation-summary ul li {
+                    margin-bottom: 2px;
+                }
+
+        /* ============================================================
+                   SIDE PANEL
+                ============================================================ */
+        .side-panel {
+            background: radial-gradient(circle at 90% 10%, rgba(253,230,138,.14) 0%, transparent 40%), radial-gradient(circle at 10% 90%, rgba(168,85,247,.28) 0%, transparent 45%), linear-gradient(160deg, #1a0b3d 0%, #2d1a4a 45%, #4c1d95 100%);
+            color: #fff;
+            padding: 48px 36px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .side-panel::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image: radial-gradient(circle at 80% 15%, rgba(255,255,255,.08) 0%, transparent 30%);
+                pointer-events: none;
+            }
+
+            .side-panel h2 {
+                font-family: var(--serif);
+                font-size: 1.6rem;
+                font-weight: 500;
+                font-style: italic;
+                line-height: 1.2;
+                margin: 0 0 12px;
+                color: #fff;
+                position: relative;
+            }
+
+                .side-panel h2 em {
+                    color: #fde68a;
+                }
+
+            .side-panel .lead {
+                font-size: 14px;
+                line-height: 1.6;
+                color: rgba(255,255,255,.75);
+                margin: 0 0 28px;
+                position: relative;
+            }
+
+        .perks {
+            list-style: none;
+            margin: 0 0 auto;
+            padding: 0;
+            position: relative;
+        }
+
+            .perks li {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(255,255,255,.08);
+                font-size: 14px;
+                color: rgba(255,255,255,.88);
+            }
+
+                .perks li:last-child {
+                    border-bottom: none;
+                }
+
+            .perks .perk-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+                background: rgba(255,255,255,.12);
+                border: 1px solid rgba(255,255,255,.2);
+                display: grid;
+                place-items: center;
+                font-size: 13px;
+                color: #fde68a;
+                flex-shrink: 0;
+            }
+
+        /* Divider with "OR" */
+        .side-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 32px 0 20px;
+            font-family: var(--sans);
+            font-size: 11px;
+            letter-spacing: .28em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.5);
+            position: relative;
+        }
+
+            .side-divider::before,
+            .side-divider::after {
+                content: '';
+                flex: 1;
+                height: 1px;
+                background: rgba(255,255,255,.14);
+            }
+
+        /* External provider buttons */
+        .external-buttons {
+            display: grid;
+            gap: 10px;
+            position: relative;
+        }
+
+        .btn-external {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 9px;
+            padding: 11px 16px;
+            font-family: var(--sans);
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .15s, border-color .15s, transform .15s;
+        }
+
+            .btn-external:hover {
+                background: rgba(255,255,255,.16);
+                border-color: rgba(255,255,255,.35);
+                color: #fff;
+                transform: translateY(-1px);
+            }
+
+            .btn-external i {
+                font-size: 15px;
+            }
+
+        .no-providers {
+            font-size: 13px;
+            line-height: 1.55;
+            color: rgba(255,255,255,.6);
+            padding: 12px 14px;
+            background: rgba(255,255,255,.06);
+            border: 1px dashed rgba(255,255,255,.18);
+            border-radius: 8px;
+            margin: 0;
+        }
+
+            .no-providers a {
+                color: #fde68a;
+            }
+
+        /* ============================================================
+                   RESPONSIVE
+                ============================================================ */
+        @@media (max-width: 900px) {
+            .register-card {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                padding: 36px 32px;
+                order: -1;
+            }
+
+                .side-panel h2 {
+                    font-size: 1.35rem;
+                }
+
+            .form-side {
+                padding: 36px 28px;
+            }
+        }
+
+        @@media (max-width: 520px) {
+            .register-wrap {
+                margin: 20px auto;
+            }
+
+            .form-side {
+                padding: 28px 22px;
+            }
+
+                .form-side h1 {
+                    font-size: 1.6rem;
+                }
+
+            .field-row,
+            .field-row.three {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+<div class="register-page">
+    <div class="register-wrap">
+        <div class="register-card">
+
+            <!-- ============================================================
+                 FORM SIDE
+            ============================================================ -->
+            <div class="form-side">
+
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="brand-mark">
+                    <span class="dot" aria-hidden="true"><i class="fa-solid fa-book-open"></i></span>
+                    <span>Book<em> Store</em></span>
+                </a>
+
+                <h1>Create your account</h1>
+                <p class="subtitle">
+                    Join The Reading Room — a small collection of
+                    books chosen for readers who linger.
+                </p>
+
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" novalidate>
+
+                    <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+
+                    <!-- ---------- ACCOUNT ---------- -->
+                    <div class="form-section-label">Account</div>
+
+                    <div class="field">
+                        <input asp-for="Input.Email" class="form-control"
+                               autocomplete="email" aria-required="true"
+                               placeholder="you@example.com" />
+                        <i class="fa-solid fa-envelope field-icon" aria-hidden="true"></i>
+                        <span asp-validation-for="Input.Email" class="validation-message"></span>
+                    </div>
+
+                    <div class="field">
+                        <input asp-for="Input.Name" class="form-control"
+                               autocomplete="name" aria-required="true"
+                               placeholder="Full name" />
+                        <i class="fa-solid fa-user field-icon" aria-hidden="true"></i>
+                        <span asp-validation-for="Input.Name" class="validation-message"></span>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <input asp-for="Input.Password" class="form-control"
+                                   autocomplete="new-password" aria-required="true"
+                                   placeholder="Password" />
+                            <i class="fa-solid fa-lock field-icon" aria-hidden="true"></i>
+                            <span asp-validation-for="Input.Password" class="validation-message"></span>
+                        </div>
+                        <div class="field">
+                            <input asp-for="Input.ConfirmPassword" class="form-control"
+                                   autocomplete="new-password" aria-required="true"
+                                   placeholder="Confirm password" />
+                            <i class="fa-solid fa-lock field-icon" aria-hidden="true"></i>
+                            <span asp-validation-for="Input.ConfirmPassword" class="validation-message"></span>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <input asp-for="Input.PhoneNumber" class="form-control"
+                               autocomplete="tel" placeholder="Phone number (optional)" />
+                        <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+                        <span asp-validation-for="Input.PhoneNumber" class="validation-message"></span>
+                    </div>
+
+                    <!-- ---------- DELIVERY ---------- -->
+                    <div class="form-section-label">Delivery Address</div>
+
+                    <div class="field">
+                        <input asp-for="Input.StreetAddress" class="form-control"
+                               autocomplete="street-address" aria-required="true"
+                               placeholder="Street address" />
+                        <i class="fa-solid fa-location-dot field-icon" aria-hidden="true"></i>
+                        <span asp-validation-for="Input.StreetAddress" class="validation-message"></span>
+                    </div>
+
+                    <div class="field-row three">
+                        <div class="field">
+                            <input asp-for="Input.City" class="form-control"
+                                   autocomplete="address-level2" aria-required="true"
+                                   placeholder="City" />
+                            <i class="fa-solid fa-city field-icon" aria-hidden="true"></i>
+                            <span asp-validation-for="Input.City" class="validation-message"></span>
+                        </div>
+                        <div class="field">
+                            <input asp-for="Input.State" class="form-control"
+                                   autocomplete="address-level1" aria-required="true"
+                                   placeholder="State" />
+                            <i class="fa-solid fa-map field-icon" aria-hidden="true"></i>
+                            <span asp-validation-for="Input.State" class="validation-message"></span>
+                        </div>
+                        <div class="field">
+                            <input asp-for="Input.PostalCode" class="form-control"
+                                   autocomplete="postal-code" aria-required="true"
+                                   placeholder="PIN" />
+                            <i class="fa-solid fa-hashtag field-icon" aria-hidden="true"></i>
+                            <span asp-validation-for="Input.PostalCode" class="validation-message"></span>
+                        </div>
+                    </div>
+
+                    <!-- ---------- ADMIN ONLY ---------- -->
+                    @if (User.IsInRole(SD.Role_Admin))
+                    {
+                        <div class="form-section-label">Administration</div>
+
+                        <div class="field-row">
+                            <div class="field">
+                                <select asp-for="Input.Role" class="form-select"
+                                        asp-items="@Model.Input.RoleList">
+                                    <option value="">— Select Role —</option>
+                                </select>
+                                <span asp-validation-for="Input.Role" class="validation-message"></span>
+                            </div>
+                            <div class="field">
+                                <select asp-for="Input.CompanyId" class="form-select"
+                                        asp-items="@Model.Input.CompanyList">
+                                    <option value="">— Select Company —</option>
+                                </select>
+                                <span asp-validation-for="Input.CompanyId" class="validation-message"></span>
+                            </div>
+                        </div>
+                    }
+
+                    <button id="registerSubmit" type="submit" class="btn-register">
+                        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                        Create Account
+                    </button>
+
+                    <p class="signin-prompt">
+                        Already have an account?
+                        <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Sign in</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- ============================================================
+                 SIDE PANEL
+            ============================================================ -->
+            <aside class="side-panel">
+
+                <h2>Join a <em>quiet</em><br />corner of the internet.</h2>
+                <p class="lead">
+                    A membership at The Reading Room is small, thoughtful, and free.
+                </p>
+
+                <ul class="perks">
+                    <li>
+                        <span class="perk-icon"><i class="fa-solid fa-truck-fast"></i></span>
+                        <span>Free delivery on orders over ₹500</span>
+                    </li>
+                    <li>
+                        <span class="perk-icon"><i class="fa-solid fa-tag"></i></span>
+                        <span>Member-only pricing on new releases</span>
+                    </li>
+                    <li>
+                        <span class="perk-icon"><i class="fa-solid fa-envelope-open-text"></i></span>
+                        <span>A personal recommendation each month</span>
+                    </li>
+                    <li>
+                        <span class="perk-icon"><i class="fa-solid fa-rotate-left"></i></span>
+                        <span>30-day return window, no questions</span>
+                    </li>
+                </ul>
+
+                @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                {
+                    <div class="side-divider">or continue with</div>
+
+                    <form id="external-account" asp-page="./ExternalLogin"
+                          asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        <div class="external-buttons">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                                var icon = provider.Name switch
+                                {
+                                    "Google" => "fa-brands fa-google",
+                                    "LinkedIn" => "fa-brands fa-linkedin-in",
+                                    "Facebook" => "fa-brands fa-facebook-f",
+                                    "GitHub" => "fa-brands fa-github",
+                                    "Microsoft" => "fa-brands fa-microsoft",
+                                    "Twitter" => "fa-brands fa-x-twitter",
+                                    _ => "fa-solid fa-right-to-bracket"
+                                };
+
+                                <button type="submit"
+                                        class="btn-external"
+                                        name="provider"
+                                        value="@provider.Name"
+                                        title="Register using your @provider.DisplayName account">
+                                    <i class="@icon" aria-hidden="true"></i>
+                                    <span>Continue with @provider.DisplayName</span>
+                                </button>
+                            }
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <p class="no-providers">
+                        No external providers configured.
+                        <a href="https://go.microsoft.com/fwlink/?LinkID=532715"
+                           target="_blank" rel="noopener">Learn how to set one up →</a>
+                    </p>
+                }
+            </aside>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

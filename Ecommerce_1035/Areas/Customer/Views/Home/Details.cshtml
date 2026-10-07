@@ -1,0 +1,760 @@
+﻿@model Ecommerce_1035.Models.Models.ShoppingCart
+@{
+    var product = Model.Product;
+    var hasDiscount = product.ListPrice > product.Price;
+    var discountPct = hasDiscount
+        ? (int)Math.Round((1 - product.Price / product.ListPrice) * 100)
+        : 0;
+    var hasTier50 = product.Price50 < product.Price;
+    var hasTier100 = product.Price100 < product.Price50;
+}
+
+@section Head {
+    <style>
+        /* ============================================================
+                   PRODUCT DETAILS PAGE
+                ============================================================ */
+        .details-page {
+            --brand-1: #6c2bd9;
+            --brand-2: #8b3dff;
+            --brand-3: #4c1d95;
+            --brand-soft: #f3f0fb;
+            --ink: #14110d;
+            --ink-soft: #5c5449;
+            --paper: #f7f4ee;
+            --paper-2: #ece4d3;
+            --paper-3: #d9cdb2;
+            --rule: #cfc4ac;
+            --rule-dark: #9c8a68;
+            --gold: #8a6c34;
+            --accent: #6b2a2a;
+            --serif: 'Cormorant Garamond', Georgia, serif;
+            --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .details-wrap {
+            max-width: 1200px;
+            margin: 24px auto 60px;
+            padding: 0 20px;
+        }
+
+        /* Breadcrumb */
+        .crumbs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--sans);
+            font-size: 12.5px;
+            color: var(--ink-soft);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+            .crumbs a {
+                color: var(--ink-soft);
+                text-decoration: none;
+                transition: color .15s;
+            }
+
+                .crumbs a:hover {
+                    color: var(--brand-1);
+                }
+
+            .crumbs .sep {
+                color: var(--rule-dark);
+            }
+
+            .crumbs .current {
+                color: var(--ink);
+                font-weight: 500;
+            }
+
+        /* Card */
+        .details-card {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 48px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 1px 3px rgba(20,10,50,.06), 0 20px 50px -30px rgba(20,10,50,.28);
+        }
+
+        /* ============================================================
+                   IMAGE COLUMN
+                ============================================================ */
+        .image-col {
+            position: sticky;
+            top: 90px;
+            align-self: start;
+        }
+
+        .cover-frame {
+            background: var(--paper-2);
+            border: 1px solid var(--rule);
+            border-radius: 12px;
+            padding: 14px;
+            position: relative;
+        }
+
+            .cover-frame::before {
+                content: '';
+                position: absolute;
+                inset: 6px;
+                border: 1px solid var(--rule);
+                border-radius: 8px;
+                pointer-events: none;
+            }
+
+            .cover-frame img {
+                width: 100%;
+                aspect-ratio: 2 / 3;
+                object-fit: cover;
+                border-radius: 6px;
+                display: block;
+                box-shadow: 0 8px 24px -12px rgba(20,17,13,.4);
+            }
+
+        /* Sale ribbon */
+        .ribbon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #dc2626;
+            color: #fff;
+            font-family: var(--sans);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 12px 0 8px 0;
+            z-index: 3;
+        }
+
+        /* ============================================================
+                   INFO COLUMN
+                ============================================================ */
+        .info-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-line {
+            font-family: var(--sans);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .22em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        h1.product-title {
+            font-family: var(--serif);
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -.01em;
+            color: var(--ink);
+            margin: 0 0 8px;
+        }
+
+        .product-author {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--ink-soft);
+            margin: 0 0 20px;
+        }
+
+        /* Meta chips */
+        .meta-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--sans);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 11px;
+            border-radius: 999px;
+            background: var(--brand-soft);
+            color: var(--brand-1);
+        }
+
+            .chip.neutral {
+                background: #f4f1ea;
+                color: var(--ink-soft);
+            }
+
+            .chip i {
+                font-size: 11px;
+            }
+
+        /* Description */
+        .description {
+            font-family: var(--serif);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--ink);
+            margin-bottom: 32px;
+        }
+
+            .description p {
+                margin: 0 0 12px;
+            }
+
+                .description p:last-child {
+                    margin-bottom: 0;
+                }
+
+        /* ============================================================
+                   PRICING BLOCK
+                ============================================================ */
+        .price-block {
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+            .price-block .label {
+                font-family: var(--sans);
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .18em;
+                text-transform: uppercase;
+                color: var(--ink-soft);
+                margin-bottom: 16px;
+            }
+
+        /* Main price — big hero */
+        .main-price {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--rule);
+        }
+
+            .main-price .now {
+                font-family: var(--serif);
+                font-size: 2.4rem;
+                font-weight: 700;
+                color: var(--accent);
+                line-height: 1;
+            }
+
+            .main-price .was {
+                font-size: 1rem;
+                color: var(--ink-soft);
+                text-decoration: line-through;
+            }
+
+            .main-price .off {
+                font-family: var(--sans);
+                font-size: 12px;
+                font-weight: 700;
+                color: #dc2626;
+                background: #fee2e2;
+                padding: 3px 9px;
+                border-radius: 999px;
+            }
+
+            .main-price .save-note {
+                display: block;
+                width: 100%;
+                font-family: var(--sans);
+                font-size: 12.5px;
+                color: #15803d;
+                font-weight: 500;
+                margin-top: 6px;
+            }
+
+        /* Tier pricing grid */
+        .tiers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 10px;
+        }
+
+        .tier {
+            background: #fff;
+            border: 1px solid var(--rule);
+            border-radius: 8px;
+            padding: 12px 14px;
+            text-align: center;
+            transition: border-color .15s, transform .15s;
+        }
+
+            .tier:hover {
+                border-color: var(--brand-1);
+                transform: translateY(-1px);
+            }
+
+            .tier .qty {
+                font-family: var(--sans);
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: .14em;
+                text-transform: uppercase;
+                color: var(--ink-soft);
+                display: block;
+                margin-bottom: 6px;
+            }
+
+            .tier .amt {
+                font-family: var(--serif);
+                font-size: 1.15rem;
+                font-weight: 700;
+                color: var(--ink);
+            }
+
+            .tier.best .amt {
+                color: var(--brand-1);
+            }
+
+        /* ============================================================
+                   QUANTITY + CTA
+                ============================================================ */
+        .purchase-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .qty-block {
+            flex-shrink: 0;
+        }
+
+            .qty-block label {
+                display: block;
+                font-family: var(--sans);
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .18em;
+                text-transform: uppercase;
+                color: var(--ink-soft);
+                margin-bottom: 8px;
+            }
+
+        .qty-stepper {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--rule-dark);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            height: 48px;
+        }
+
+            .qty-stepper button {
+                width: 44px;
+                height: 48px;
+                border: none;
+                background: transparent;
+                color: var(--ink);
+                font-size: 16px;
+                cursor: pointer;
+                transition: background .15s;
+                display: grid;
+                place-items: center;
+            }
+
+                .qty-stepper button:hover:not(:disabled) {
+                    background: var(--brand-soft);
+                    color: var(--brand-1);
+                }
+
+                .qty-stepper button:disabled {
+                    opacity: .3;
+                    cursor: not-allowed;
+                }
+
+            .qty-stepper input {
+                width: 60px;
+                height: 48px;
+                border: none;
+                border-left: 1px solid var(--rule);
+                border-right: 1px solid var(--rule);
+                text-align: center;
+                font-family: var(--sans);
+                font-size: 15px;
+                font-weight: 600;
+                color: var(--ink);
+                background: transparent;
+                -moz-appearance: textfield;
+            }
+
+                .qty-stepper input::-webkit-outer-spin-button,
+                .qty-stepper input::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+
+                .qty-stepper input:focus {
+                    outline: none;
+                    background: var(--brand-soft);
+                }
+
+        .qty-error {
+            display: block;
+            font-family: var(--sans);
+            font-size: 12px;
+            color: #dc2626;
+            margin-top: 6px;
+        }
+
+        .btn-add {
+            flex: 1;
+            min-width: 220px;
+            height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: var(--sans);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+            box-shadow: 0 8px 22px -10px rgba(108,43,217,.55);
+        }
+
+            .btn-add:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 12px 28px -10px rgba(108,43,217,.7);
+            }
+
+            .btn-add:active {
+                transform: translateY(0);
+            }
+
+            .btn-add i {
+                font-size: 15px;
+            }
+
+        /* Secondary actions */
+        .secondary-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-family: var(--sans);
+        }
+
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: transparent;
+            border: 1px solid var(--rule-dark);
+            border-radius: 9px;
+            color: var(--ink);
+            font-size: 13.5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all .15s;
+        }
+
+            .btn-ghost:hover {
+                border-color: var(--brand-1);
+                color: var(--brand-1);
+                background: var(--brand-soft);
+            }
+
+            .btn-ghost i {
+                font-size: 13px;
+            }
+
+        /* Trust row */
+        .trust-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid var(--rule);
+            font-family: var(--sans);
+            font-size: 12.5px;
+            color: var(--ink-soft);
+        }
+
+            .trust-row span {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .trust-row i {
+                color: var(--brand-1);
+                font-size: 13px;
+            }
+
+        /* ============================================================
+                   RESPONSIVE
+                ============================================================ */
+        @@media (max-width: 900px) {
+            .details-card {
+                grid-template-columns: 1fr;
+                padding: 28px;
+                gap: 28px;
+            }
+
+            .image-col {
+                position: static;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+
+            h1.product-title {
+                font-size: 1.75rem;
+            }
+
+            .main-price .now {
+                font-size: 2rem;
+            }
+        }
+
+        @@media (max-width: 520px) {
+            .details-wrap {
+                padding: 0 14px;
+                margin: 12px auto 40px;
+            }
+
+            .details-card {
+                padding: 20px;
+            }
+
+            .purchase-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .qty-block {
+                width: 100%;
+            }
+
+            .qty-stepper {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+                .qty-stepper input {
+                    flex: 1;
+                }
+
+            .btn-add {
+                min-width: 0;
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+<div class="details-page">
+    <div class="details-wrap">
+
+        <!-- ============================================================
+             BREADCRUMB
+        ============================================================ -->
+        <nav class="crumbs" aria-label="Breadcrumb">
+            <a asp-area="" asp-controller="Home" asp-action="Index">Catalogue</a>
+            <span class="sep" aria-hidden="true">/</span>
+            @if (!string.IsNullOrEmpty(product.Category?.Name))
+            {
+                <a asp-area="" asp-controller="Home" asp-action="Index">@product.Category.Name</a>
+                <span class="sep" aria-hidden="true">/</span>
+            }
+            <span class="current">@product.Title</span>
+        </nav>
+
+        <!-- ============================================================
+             CARD
+        ============================================================ -->
+        <form asp-area="Customer" asp-controller="Home" asp-action="Details" method="post">
+            <input asp-for="ProductId" hidden />
+
+            <div class="details-card">
+
+                <!-- ============ IMAGE ============ -->
+                <div class="image-col">
+                    <div class="cover-frame">
+                        @if (hasDiscount)
+                        {
+                            <span class="ribbon">−@discountPct% off</span>
+                        }
+                        <img src="@product.ImageUrl"
+                             alt="Cover of @product.Title by @product.Author"
+                             onerror="this.onerror=null;this.src='/images/placeholder-book.png';" />
+                    </div>
+                </div>
+
+                <!-- ============ INFO ============ -->
+                <div class="info-col">
+
+                    @if (!string.IsNullOrEmpty(product.Category?.Name))
+                    {
+                        <div class="category-line">@product.Category.Name</div>
+                    }
+
+                    <h1 class="product-title">@product.Title</h1>
+                    <p class="product-author">by @product.Author</p>
+
+                    <!-- Meta chips -->
+                    <div class="meta-chips">
+                        @if (!string.IsNullOrEmpty(product.CoverTypes?.Name))
+                        {
+                            <span class="chip">
+                                <i class="fa-solid fa-book" aria-hidden="true"></i>
+                                @product.CoverTypes.Name
+                            </span>
+                        }
+                        @if (!string.IsNullOrEmpty(product.ISBN))
+                        {
+                            <span class="chip neutral">
+                                <i class="fa-solid fa-barcode" aria-hidden="true"></i>
+                                ISBN @product.ISBN
+                            </span>
+                        }
+                        @if (hasDiscount)
+                        {
+                            <span class="chip neutral">
+                                <i class="fa-solid fa-tag" aria-hidden="true"></i>
+                                Save @discountPct%
+                            </span>
+                        }
+                    </div>
+
+                    <!-- Description -->
+                    <div class="description">
+                        @Html.Raw(product.Description)
+                    </div>
+
+                    <!-- ============ PRICING ============ -->
+                    <div class="price-block">
+                        <div class="label">Pricing</div>
+
+                        <div class="main-price">
+                            <span class="now">@product.Price.ToString("C")</span>
+                            @if (hasDiscount)
+                            {
+                                <span class="was">@product.ListPrice.ToString("C")</span>
+                                <span class="off">@discountPct% off</span>
+                                <span class="save-note">
+                                    You save @((product.ListPrice - product.Price).ToString("C")) per copy
+                                </span>
+                            }
+                        </div>
+
+                        <div class="tiers">
+                            <div class="tier @(product.Price <= product.Price ? "best" : "")">
+                                <span class="qty">1+ copy</span>
+                                <span class="amt">@product.Price.ToString("C")</span>
+                            </div>
+                            <div class="tier">
+                                <span class="qty">50+ copies</span>
+                                <span class="amt">@product.Price50.ToString("C")</span>
+                            </div>
+                            <div class="tier">
+                                <span class="qty">100+ copies</span>
+                                <span class="amt">@product.Price100.ToString("C")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ============ QUANTITY + CTA ============ -->
+                    <div class="purchase-row">
+
+                        <div class="qty-block">
+                            <label asp-for="Count">Quantity</label>
+                            <div class="qty-stepper">
+                                <button type="button" id="qtyMinus" aria-label="Decrease quantity">
+                                    <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                </button>
+                                <input asp-for="Count" type="number" min="1" value="1"
+                                       id="qtyInput" inputmode="numeric" />
+                                <button type="button" id="qtyPlus" aria-label="Increase quantity">
+                                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Count" class="qty-error"></span>
+                        </div>
+
+                        <button type="submit" class="btn-add">
+                            <i class="fa-solid fa-cart-plus" aria-hidden="true"></i>
+                            Add to Cart
+                        </button>
+                    </div>
+
+                    <div class="secondary-actions">
+                        <a asp-action="Index" class="btn-ghost">
+                            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                            Back to Catalogue
+                        </a>
+                    </div>
+
+                    <!-- Trust row -->
+                    <div class="trust-row">
+                        <span><i class="fa-solid fa-truck-fast" aria-hidden="true"></i> Free delivery over ₹500</span>
+                        <span><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> 30-day returns</span>
+                        <span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Secure checkout</span>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            'use strict';
+
+            var input = document.getElementById('qtyInput');
+            var minus = document.getElementById('qtyMinus');
+            var plus = document.getElementById('qtyPlus');
+            if (!input || !minus || !plus) return;
+
+            function clamp() {
+                var v = parseInt(input.value, 10);
+                if (isNaN(v) || v < 1) v = 1;
+                if (v > 999) v = 999;
+                input.value = v;
+                minus.disabled = v <= 1;
+                plus.disabled = v >= 999;
+            }
+
+            minus.addEventListener('click', function () {
+                input.value = (parseInt(input.value, 10) || 1) - 1;
+                clamp();
+            });
+            plus.addEventListener('click', function () {
+                input.value = (parseInt(input.value, 10) || 1) + 1;
+                clamp();
+            });
+            input.addEventListener('input', clamp);
+            input.addEventListener('blur', clamp);
+
+            clamp();
+        })();
+    </script>
+}

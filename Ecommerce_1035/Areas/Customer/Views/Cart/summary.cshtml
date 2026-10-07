@@ -1,0 +1,705 @@
+﻿@model Ecommerce_1035.Models.Models.ViewModel.ShoppingCartVM
+@{
+    var cartItems = Model.ListCart ?? new List<Ecommerce_1035.Models.Models.ShoppingCart>();
+    var totalQty = cartItems.Sum(x => x.Count);
+    var subtotal = cartItems.Sum(x => x.Price * x.Count);
+    var arrivalStart = DateTime.Now.AddDays(7);
+    var arrivalEnd = DateTime.Now.AddDays(14);
+}
+
+@section Head {
+    <style>
+        .checkout-page {
+            --brand-1: #6c2bd9;
+            --brand-2: #8b3dff;
+            --brand-soft: #f3f0fb;
+            --ink: #14110d;
+            --ink-soft: #5c5449;
+            --paper: #f7f4ee;
+            --rule: #cfc4ac;
+            --rule-dark: #9c8a68;
+            --gold: #8a6c34;
+            --accent: #6b2a2a;
+            --ok: #15803d;
+            --serif: 'Cormorant Garamond', Georgia, serif;
+            --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .checkout-wrap {
+            max-width: 1160px;
+            margin: 36px auto 60px;
+            padding: 0 24px;
+        }
+
+        /* ---------- Header ---------- */
+        .checkout-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 26px;
+            flex-wrap: wrap;
+        }
+
+            .checkout-head h1 {
+                font-family: var(--serif);
+                font-size: 2rem;
+                font-weight: 700;
+                margin: 0;
+                color: var(--ink);
+                line-height: 1.1;
+            }
+
+            .checkout-head .meta {
+                font-family: var(--sans);
+                font-size: 14px;
+                color: var(--ink-soft);
+                margin-top: 6px;
+            }
+
+                .checkout-head .meta strong {
+                    color: var(--ink);
+                    font-weight: 600;
+                }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            background: transparent;
+            border: 1px solid var(--rule-dark);
+            border-radius: 9px;
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 13.5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all .15s;
+        }
+
+            .btn-back:hover {
+                border-color: var(--brand-1);
+                color: var(--brand-1);
+                background: var(--brand-soft);
+            }
+
+            .btn-back i {
+                font-size: 12px;
+            }
+
+        /* ---------- Grid ---------- */
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ---------- Card ---------- */
+        .card-block {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(20,10,50,.06), 0 18px 44px -28px rgba(20,10,50,.28);
+        }
+
+            .card-block + .card-block {
+                margin-top: 20px;
+            }
+
+        .block-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 26px;
+            border-bottom: 1px solid var(--rule);
+        }
+
+            .block-head .icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 9px;
+                background: var(--brand-soft);
+                color: var(--brand-1);
+                display: grid;
+                place-items: center;
+                font-size: 14px;
+                flex-shrink: 0;
+            }
+
+            .block-head h2 {
+                font-family: var(--serif);
+                font-size: 1.3rem;
+                font-weight: 600;
+                font-style: italic;
+                margin: 0;
+                color: var(--ink);
+                line-height: 1.2;
+            }
+
+            .block-head .step {
+                margin-left: auto;
+                font-family: var(--sans);
+                font-size: 11px;
+                font-weight: 600;
+                letter-spacing: .16em;
+                text-transform: uppercase;
+                color: var(--ink-soft);
+            }
+
+        .block-body {
+            padding: 26px;
+        }
+
+        /* ---------- Fields ---------- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+            .form-grid .full {
+                grid-column: 1 / -1;
+            }
+
+        .field {
+            position: relative;
+        }
+
+            .field label {
+                display: block;
+                font-family: var(--sans);
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .14em;
+                text-transform: uppercase;
+                color: var(--ink-soft);
+                margin-bottom: 8px;
+            }
+
+            .field .form-control {
+                width: 100%;
+                background: var(--paper);
+                border: 1px solid var(--rule);
+                border-radius: 8px;
+                padding: 14px 16px 14px 44px;
+                font-family: var(--sans);
+                font-size: 15px;
+                color: var(--ink);
+                transition: border-color .15s, background .15s, box-shadow .15s;
+                height: auto;
+            }
+
+                .field .form-control::placeholder {
+                    color: #a89d8a;
+                }
+
+                .field .form-control:focus {
+                    outline: none;
+                    border-color: var(--brand-1);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(108,43,217,.12);
+                }
+
+                .field .form-control.input-validation-error {
+                    border-color: #dc2626;
+                    background: #fef2f2;
+                }
+
+            .field .field-icon {
+                position: absolute;
+                left: 15px;
+                top: 44px;
+                color: var(--rule-dark);
+                font-size: 15px;
+                pointer-events: none;
+                transition: color .15s;
+            }
+
+            .field .form-control:focus ~ .field-icon {
+                color: var(--brand-1);
+            }
+
+            .field .validation-message {
+                display: block;
+                font-family: var(--sans);
+                font-size: 12px;
+                color: #dc2626;
+                margin-top: 4px;
+                padding-left: 4px;
+            }
+
+        /* ---------- Items ---------- */
+        .items-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 68px 1fr auto;
+            gap: 18px;
+            padding: 18px 0;
+            align-items: center;
+            border-bottom: 1px solid #f0ece3;
+        }
+
+            .item-row:first-child {
+                padding-top: 0;
+            }
+
+            .item-row:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+        .item-thumb {
+            width: 68px;
+            height: 92px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: var(--paper);
+            box-shadow: 0 4px 10px -5px rgba(20,17,13,.35);
+        }
+
+            .item-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+
+        .item-info .title {
+            font-family: var(--serif);
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.25;
+            margin: 0 0 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .item-info .author {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 14px;
+            color: var(--ink-soft);
+            margin-bottom: 8px;
+        }
+
+        .item-info .qty {
+            font-family: var(--sans);
+            font-size: 12px;
+            color: var(--ink-soft);
+            background: var(--paper);
+            padding: 3px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+            .item-info .qty strong {
+                color: var(--ink);
+                font-weight: 600;
+            }
+
+        .item-price {
+            text-align: right;
+            font-family: var(--serif);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        /* ---------- Summary ---------- */
+        .summary-side {
+            position: sticky;
+            top: 90px;
+        }
+
+        .summary-rows {
+            padding: 8px 26px 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 0;
+            font-family: var(--sans);
+            font-size: 14px;
+            color: var(--ink-soft);
+        }
+
+            .summary-row .val {
+                font-family: var(--serif);
+                font-size: 1.1rem;
+                font-weight: 500;
+                color: var(--ink);
+                font-variant-numeric: tabular-nums;
+            }
+
+                .summary-row .val.free {
+                    color: var(--ok);
+                    font-weight: 600;
+                }
+
+        .summary-total {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 20px 26px;
+            border-top: 2px solid var(--rule-dark);
+            background: var(--paper);
+        }
+
+            .summary-total .label {
+                font-family: var(--sans);
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: .16em;
+                text-transform: uppercase;
+                color: var(--ink-soft);
+            }
+
+            .summary-total .amount {
+                font-family: var(--serif);
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--accent);
+                line-height: 1;
+                font-variant-numeric: tabular-nums;
+            }
+
+        /* ---------- Delivery note ---------- */
+        .delivery-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 20px;
+            margin: 0 26px 20px;
+            background: var(--brand-soft);
+            border-radius: 10px;
+            font-family: var(--sans);
+            font-size: 13.5px;
+            color: var(--ink);
+            line-height: 1.5;
+        }
+
+            .delivery-note i {
+                color: var(--brand-1);
+                font-size: 16px;
+                margin-top: 2px;
+            }
+
+            .delivery-note strong {
+                font-weight: 600;
+            }
+
+        /* ---------- CTA ---------- */
+        .btn-place {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: calc(100% - 52px);
+            margin: 0 26px 20px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: var(--sans);
+            font-size: 15.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+            box-shadow: 0 10px 26px -10px rgba(108,43,217,.6);
+        }
+
+            .btn-place:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 14px 32px -10px rgba(108,43,217,.75);
+            }
+
+            .btn-place:active {
+                transform: translateY(0);
+            }
+
+            .btn-place i {
+                font-size: 15px;
+            }
+
+        .payment-trust {
+            padding: 0 26px 22px;
+            text-align: center;
+            font-family: var(--sans);
+            font-size: 12.5px;
+            color: var(--ink-soft);
+        }
+
+            .payment-trust i {
+                color: var(--ok);
+                margin-right: 6px;
+            }
+
+        /* ---------- Responsive ---------- */
+        @@media (max-width: 900px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-side {
+                position: static;
+            }
+        }
+
+        @@media (max-width: 520px) {
+            .checkout-wrap {
+                padding: 0 16px;
+                margin: 20px auto 40px;
+            }
+
+            .block-body {
+                padding: 20px;
+            }
+
+            .block-head {
+                padding: 16px 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .item-row {
+                grid-template-columns: 56px 1fr auto;
+                gap: 14px;
+            }
+
+            .item-thumb {
+                width: 56px;
+                height: 76px;
+            }
+
+            .summary-rows {
+                padding: 6px 20px 16px;
+            }
+
+            .summary-total {
+                padding: 16px 20px;
+            }
+
+                .summary-total .amount {
+                    font-size: 1.6rem;
+                }
+
+            .delivery-note {
+                margin: 0 20px 16px;
+            }
+
+            .btn-place {
+                width: calc(100% - 40px);
+                margin: 0 20px 16px;
+            }
+
+            .payment-trust {
+                padding: 0 20px 18px;
+            }
+        }
+    </style>
+}
+
+<div class="checkout-page">
+    <div class="checkout-wrap">
+
+        <!-- ============================================================
+             HEADER
+        ============================================================ -->
+        <div class="checkout-head">
+            <div>
+                <h1>Review Your Order</h1>
+                <div class="meta">
+                    <strong>@totalQty</strong> @(totalQty == 1 ? "book" : "books") ·
+                    <strong>@subtotal.ToString("C")</strong> subtotal
+                </div>
+            </div>
+            <a asp-action="Index" asp-controller="Cart" class="btn-back">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                Back to Cart
+            </a>
+        </div>
+
+        <!-- ============================================================
+             FORM
+        ============================================================ -->
+        <form method="post">
+            <div class="checkout-grid">
+
+                <!-- ====================================================
+                     LEFT
+                ==================================================== -->
+                <div>
+
+                    <!-- ---------- Items ---------- -->
+                    <div class="card-block">
+                        <div class="block-head">
+                            <span class="icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></span>
+                            <h2>Items</h2>
+                            <span class="step">@totalQty @(totalQty == 1 ? "item" : "items")</span>
+                        </div>
+
+                        <div class="block-body">
+                            <div class="items-list">
+                                @foreach (var item in cartItems)
+                                {
+                                    var lineTotal = item.Price * item.Count;
+                                    <div class="item-row">
+                                        <div class="item-thumb">
+                                            <img src="@item.Product.ImageUrl"
+                                                 alt="Cover of @item.Product.Title"
+                                                 loading="lazy"
+                                                 onerror="this.onerror=null;this.src='/images/placeholder-book.png';" />
+                                        </div>
+                                        <div class="item-info">
+                                            <div class="title">@item.Product.Title</div>
+                                            <div class="author">by @item.Product.Author</div>
+                                            <span class="qty">×<strong>@item.Count</strong></span>
+                                        </div>
+                                        <div class="item-price">@lineTotal.ToString("C")</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ---------- Delivery Details ---------- -->
+                    <div class="card-block">
+                        <div class="block-head">
+                            <span class="icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
+                            <h2>Delivery Details</h2>
+                            <span class="step">Step 2</span>
+                        </div>
+
+                        <div class="block-body">
+                            <div class="form-grid">
+
+                                <div class="field full">
+                                    <label asp-for="OrderHeader.Name">Full Name</label>
+                                    <input asp-for="OrderHeader.Name" class="form-control"
+                                           autocomplete="name" placeholder="Recipient's name" />
+                                    <i class="fa-solid fa-user field-icon" aria-hidden="true"></i>
+                                    <span asp-validation-for="OrderHeader.Name" class="validation-message"></span>
+                                </div>
+
+                                <div class="field full">
+                                    <label asp-for="OrderHeader.PhoneNumber">Phone</label>
+                                    <input asp-for="OrderHeader.PhoneNumber" class="form-control"
+                                           autocomplete="tel" placeholder="Contact number" />
+                                    <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
+                                    <span asp-validation-for="OrderHeader.PhoneNumber" class="validation-message"></span>
+                                </div>
+
+                                <div class="field full">
+                                    <label asp-for="OrderHeader.StreetAddress">Street Address</label>
+                                    <input asp-for="OrderHeader.StreetAddress" class="form-control"
+                                           autocomplete="street-address" placeholder="House, building, area" />
+                                    <i class="fa-solid fa-house field-icon" aria-hidden="true"></i>
+                                    <span asp-validation-for="OrderHeader.StreetAddress" class="validation-message"></span>
+                                </div>
+
+                                <div class="field">
+                                    <label asp-for="OrderHeader.City">City</label>
+                                    <input asp-for="OrderHeader.City" class="form-control"
+                                           autocomplete="address-level2" placeholder="City" />
+                                    <i class="fa-solid fa-city field-icon" aria-hidden="true"></i>
+                                    <span asp-validation-for="OrderHeader.City" class="validation-message"></span>
+                                </div>
+
+                                <div class="field">
+                                    <label asp-for="OrderHeader.State">State</label>
+                                    <input asp-for="OrderHeader.State" class="form-control"
+                                           autocomplete="address-level1" placeholder="State" />
+                                    <i class="fa-solid fa-map field-icon" aria-hidden="true"></i>
+                                    <span asp-validation-for="OrderHeader.State" class="validation-message"></span>
+                                </div>
+
+                                <div class="field">
+                                    <label asp-for="OrderHeader.PostalCode">Postal Code</label>
+                                    <input asp-for="OrderHeader.PostalCode" class="form-control"
+                                           autocomplete="postal-code" placeholder="PIN code" />
+                                    <i class="fa-solid fa-hashtag field-icon" aria-hidden="true"></i>
+                                    <span asp-validation-for="OrderHeader.PostalCode" class="validation-message"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ====================================================
+                     RIGHT — Summary
+                ==================================================== -->
+                <aside class="summary-side">
+                    <div class="card-block">
+
+                        <div class="block-head">
+                            <span class="icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+                            <h2>Summary</h2>
+                        </div>
+
+                        <div class="summary-rows">
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span class="val">@subtotal.ToString("C")</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Shipping</span>
+                                <span class="val free">Free</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Tax</span>
+                                <span class="val">Included</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-total">
+                            <span class="label">Total</span>
+                            <span class="amount">@Model.OrderHeader.OrderTotal.ToString("C")</span>
+                        </div>
+
+                        <div class="delivery-note">
+                            <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                            <div>
+                                <strong>Arrives</strong> @arrivalStart.ToString("MMM d") – @arrivalEnd.ToString("MMM d")
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-place">
+                            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                            Place Order
+                        </button>
+
+                        <div class="payment-trust">
+                            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                            Secure checkout
+                        </div>
+
+                    </div>
+                </aside>
+
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

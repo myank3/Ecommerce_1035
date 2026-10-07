@@ -1,0 +1,79 @@
+﻿@model Ecommerce_1035.Models.Models.ViewModel.OrderVM
+
+<div class="container mt-4">
+    <div class="card shadow border-0">
+        <div class="card-header bg-secondary bg-gradient py-3">
+            <h2 class="text-dark text-center py-2">Order Details</h2>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row border-bottom pb-3">
+
+                <div class="col-md-6">
+                    <h5 class="text-secondary">Delivery Info</h5>
+
+                    <p class="mb-1"><strong>Name:</strong> @Model.OrderHeader.Name</p>
+                    <p class="mb-1"><strong>Phone:</strong> @Model.OrderHeader.PhoneNumber</p>
+                    <p class="mb-1"><strong>Address:</strong> @Model.OrderHeader.StreetAddress</p>
+                    <p class="mb-1">
+                        <strong>City:</strong> @Model.OrderHeader.City,
+                        <strong>State:</strong> @Model.OrderHeader.State,
+                        <strong>Zip:</strong> @Model.OrderHeader.PostalCode
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="text-secondary">Order Info</h5>
+
+                    <p class="mb-1"><strong>Order Date:</strong> @Model.OrderHeader.OrderDate.ToShortDateString()</p>
+                    <p class="mb-1"><strong>Order Total:</strong> ₹ @Model.OrderHeader.OrderTotal</p>
+                    <p class="mb-1"><strong>Order Status:</strong> @Model.OrderHeader.OrderStatus</p>
+                    <p class="mb-1"><strong>Payment Status:</strong> @Model.OrderHeader.PaymentStatus</p>
+                </div>
+
+            </div>
+            <div class="row pt-3">
+                <div class="col-12">
+                    <h5 class="text-secondary">Order Items</h5>
+
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderDetailList)
+                            {
+                                <tr>
+                                    <td>@item.Product.Title</td>
+                                    <td>@item.Product.Author</td>
+                                    <td>₹ @item.Price</td>
+                                    <td>@item.Count</td>
+                                </tr>
+                            }
+
+                            <tr class="fw-bold">
+                                <td colspan="2">Total</td>
+                                <td>₹ @Model.OrderHeader.OrderTotal</td>
+                                <td>@Model.OrderDetailList.Sum(x => x.Count)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row pt-2">
+                <div class="col-md-3">
+                    <a asp-action="Index" class="btn btn-outline-primary form-control">
+                        Back to List
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

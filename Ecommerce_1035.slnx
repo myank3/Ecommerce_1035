@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Ecommerce_1035.DataAccess/Ecommerce_1035.DataAccess.csproj" />
+  <Project Path="Ecommerce_1035.Models/Ecommerce_1035.Models.csproj" />
+  <Project Path="Ecommerce_1035.Utilities/Ecommerce_1035.Utilities.csproj" />
+  <Project Path="Ecommerce_1035/Ecommerce_1035.csproj" />
+</Solution>

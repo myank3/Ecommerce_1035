@@ -1,0 +1,26 @@
+﻿<div class="container">
+    <div>
+        <h2 class="text-center text-info">Category List</h2>
+    </div>
+    <div>
+        <div class="col-2text-end mb-3">
+            <a asp-action="Upsert" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Category
+            </a>
+        </div>
+        <table id="tblData" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                     <th>Actions</th>
+                    <th>Category Name</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/js/category.js"></script>
+}

@@ -1,0 +1,29 @@
+﻿@model Ecommerce_1035.Models.Models.CoverTypes
+
+@{
+	var title = Model.Id != 0 ? "Edit CoverTypes " : "New CoverTypes";
+	var saveUpdate = Model.Id != 0 ? "Update" : "Save";
+}
+
+<h2 class="text-info text-center">@title</h2>
+<form method="post">
+	@if (Model.Id != 0)
+	{
+		<input type="hidden" asp-for="Id" />
+	}
+	<div>
+		<label asp-for="Name" class="form-control-plaintext fw-bold">Name</label>
+		<input asp-for="Name" class="form-control" />
+		<span asp-validation-for="Name"> </span>
+	</div>
+
+		
+	<button type="submit" class="btn btn-primary gap-4 mb-3" col="4" form-control">@saveUpdate</button>
+
+</form>
+<a asp-area="Admin" asp-controller="CoverTypes" asp-action="Index" class="btn btn-info mb-2 p-2 gap-2">Back to Index</a>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}
+

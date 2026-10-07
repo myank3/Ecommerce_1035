@@ -1,0 +1,128 @@
+﻿@page
+@model Ecommerce_1035.Areas.Identity.Pages.Account.ConfirmPhoneModel
+@{
+    ViewData["Title"] = "Confirm your phone";
+}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<div class="old-money-container">
+    <h1 class="om-title">@ViewData["Title"]</h1>
+    <p class="om-text">We sent a 6-digit code to your phone. Enter it below to finish your registration.</p>
+    <hr class="om-divider" />
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <form method="post" class="om-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert"></div>
+
+                <div class="form-floating mb-4">
+                    <input asp-for="Input.Code" class="form-control om-input" inputmode="numeric" maxlength="6" placeholder="" />
+                    <label asp-for="Input.Code" class="om-label"></label>
+                    <span asp-validation-for="Input.Code" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="w-100 btn btn-lg om-btn">Verify</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .old-money-container {
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        background-color: #f9f8f5;
+        border: 1px solid #e5dfd5;
+        padding: 3rem 2rem;
+        max-width: 680px;
+        margin: 2.5rem auto;
+        color: #24221f;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    }
+
+    .om-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        text-align: center;
+        color: #1b241e;
+        margin-bottom: 0.5rem;
+    }
+
+    .om-text {
+        text-align: center;
+        color: #645f57;
+        font-size: 0.95rem;
+        font-weight: 300;
+        letter-spacing: 0.02em;
+        margin-bottom: 1.5rem;
+    }
+
+    .om-divider {
+        width: 60px;
+        height: 1px;
+        background-color: #bfa15f;
+        opacity: 0.9;
+        margin: 0 auto 2.5rem auto;
+        border: none;
+    }
+
+    .om-form {
+        background-color: #ffffff;
+        border: 1px solid #eae5db;
+        padding: 2rem;
+    }
+
+    .om-input {
+        border-radius: 0;
+        border: 1px solid #d8d2c5;
+        background-color: #faf9f6;
+        color: #1b241e;
+        letter-spacing: 0.35em;
+        font-size: 1.25rem;
+        font-weight: 500;
+        font-family: 'Playfair Display', Georgia, serif;
+        text-align: center;
+    }
+
+        .om-input:focus {
+            border-color: #1b241e;
+            box-shadow: 0 0 0 1px #1b241e;
+            background-color: #ffffff;
+            color: #1b241e;
+        }
+
+    .om-label {
+        font-family: 'Cinzel', serif;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: #7d7568;
+    }
+
+    .om-btn {
+        background-color: #1b241e;
+        color: #f7f5f0;
+        border: 1px solid #141b16;
+        border-radius: 0;
+        font-family: 'Cinzel', serif;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        padding: 0.85rem;
+        transition: all 0.25s ease;
+    }
+
+        .om-btn:hover {
+            background-color: #101511;
+            border-color: #0b0f0c;
+            color: #ffffff;
+        }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,37 @@
+﻿@page
+@model Ecommerce_1035.Areas.Identity.Pages.Account.LoginWithPhone2faModel
+@{
+    ViewData["Title"] = "Two-factor authentication";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>We sent a 6-digit code to your phone. Enter it below.</p>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+            <input asp-for="RememberMe" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Code" class="form-control" inputmode="numeric" maxlength="6" placeholder="123456" />
+                <label asp-for="Input.Code"></label>
+                <span asp-validation-for="Input.Code" class="text-danger"></span>
+            </div>
+
+            <div class="checkbox mb-3">
+                <label asp-for="Input.RememberMachine">
+                    <input asp-for="Input.RememberMachine" />
+                    @Html.DisplayNameFor(m => m.Input.RememberMachine)
+                </label>
+            </div>
+
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

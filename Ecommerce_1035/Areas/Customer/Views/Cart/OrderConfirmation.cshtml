@@ -1,0 +1,350 @@
+﻿@model int
+
+@section Head {
+    <style>
+        .confirm-page {
+            --brand-1: #6c2bd9;
+            --brand-2: #8b3dff;
+            --brand-soft: #f3f0fb;
+            --ink: #14110d;
+            --ink-soft: #5c5449;
+            --paper: #f7f4ee;
+            --paper-2: #ece4d3;
+            --rule: #cfc4ac;
+            --rule-dark: #9c8a68;
+            --gold: #8a6c34;
+            --accent: #6b2a2a;
+            --ok: #15803d;
+            --serif: 'Cormorant Garamond', Georgia, serif;
+            --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .confirm-wrap {
+            max-width: 720px;
+            margin: 48px auto 80px;
+            padding: 0 24px;
+        }
+
+        .confirm-card {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(20,10,50,.06), 0 24px 60px -30px rgba(20,10,50,.28);
+        }
+
+        /* ---------- Success banner ---------- */
+        .confirm-hero {
+            position: relative;
+            padding: 44px 32px 36px;
+            background: radial-gradient(circle at 85% 15%, rgba(253,230,138,.22) 0%, transparent 45%), radial-gradient(circle at 15% 90%, rgba(168,85,247,.28) 0%, transparent 50%), linear-gradient(135deg, #1a0b3d 0%, #4c1d95 55%, #6c2bd9 100%);
+            color: #fff;
+            overflow: hidden;
+        }
+
+            .confirm-hero::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image: radial-gradient(circle at 80% 20%, rgba(255,255,255,.08) 0%, transparent 30%);
+                pointer-events: none;
+            }
+
+        .check-mark {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.15);
+            border: 2px solid rgba(253,230,138,.55);
+            display: grid;
+            place-items: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+            color: #fde68a;
+            position: relative;
+            z-index: 2;
+            animation: pop .5s cubic-bezier(.2,.8,.3,1.2) both;
+        }
+
+        @@keyframes pop {
+            from {
+                transform: scale(.4);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .confirm-hero .kicker {
+            font-family: var(--sans);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .28em;
+            text-transform: uppercase;
+            color: #fde68a;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .confirm-hero h1 {
+            font-family: var(--serif);
+            font-size: 2rem;
+            font-weight: 700;
+            font-style: italic;
+            line-height: 1.15;
+            margin: 0;
+            color: #fff;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ---------- Body ---------- */
+        .confirm-body {
+            padding: 36px 40px 40px;
+        }
+
+        .confirm-message {
+            font-family: var(--sans);
+            font-size: 15px;
+            line-height: 1.65;
+            color: var(--ink-soft);
+            margin: 0 0 28px;
+            max-width: 44ch;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Order number block */
+        .order-number {
+            background: var(--paper);
+            border: 1px solid var(--rule);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 0 auto 28px;
+            max-width: 320px;
+        }
+
+            .order-number .label {
+                font-family: var(--sans);
+                font-size: 10.5px;
+                font-weight: 700;
+                letter-spacing: .24em;
+                text-transform: uppercase;
+                color: var(--gold);
+                margin-bottom: 6px;
+            }
+
+            .order-number .value {
+                font-family: var(--serif);
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--accent);
+                line-height: 1;
+                letter-spacing: .02em;
+            }
+
+                .order-number .value::before {
+                    content: '#';
+                    color: var(--rule-dark);
+                    margin-right: 4px;
+                    font-weight: 500;
+                }
+
+        /* Info strip */
+        .info-strip {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--brand-soft);
+            border-radius: 10px;
+            text-align: left;
+            margin-bottom: 28px;
+            font-family: var(--sans);
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--ink);
+        }
+
+            .info-strip i {
+                color: var(--brand-1);
+                font-size: 15px;
+                margin-top: 2px;
+                flex-shrink: 0;
+            }
+
+            .info-strip strong {
+                font-weight: 600;
+            }
+
+        /* Actions */
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary-lg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+            color: #fff;
+            border-radius: 10px;
+            font-family: var(--sans);
+            font-size: 14.5px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s;
+            box-shadow: 0 10px 26px -10px rgba(108,43,217,.6);
+        }
+
+            .btn-primary-lg:hover {
+                transform: translateY(-1px);
+                color: #fff;
+                box-shadow: 0 14px 32px -10px rgba(108,43,217,.75);
+            }
+
+            .btn-primary-lg:active {
+                transform: translateY(0);
+            }
+
+            .btn-primary-lg i {
+                font-size: 14px;
+            }
+
+        .btn-ghost-lg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: transparent;
+            border: 1px solid var(--rule-dark);
+            border-radius: 10px;
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 14.5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all .15s;
+        }
+
+            .btn-ghost-lg:hover {
+                border-color: var(--brand-1);
+                color: var(--brand-1);
+                background: var(--brand-soft);
+            }
+
+            .btn-ghost-lg i {
+                font-size: 13px;
+            }
+
+        /* ---------- Responsive ---------- */
+        @@media (max-width: 520px) {
+            .confirm-wrap {
+                padding: 0 16px;
+                margin: 24px auto 50px;
+            }
+
+            .confirm-hero {
+                padding: 34px 22px 28px;
+            }
+
+                .confirm-hero h1 {
+                    font-size: 1.6rem;
+                }
+
+            .check-mark {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+
+            .confirm-body {
+                padding: 28px 22px 32px;
+            }
+
+            .order-number .value {
+                font-size: 1.6rem;
+            }
+
+            .confirm-actions {
+                flex-direction: column;
+            }
+
+            .btn-primary-lg,
+            .btn-ghost-lg {
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+<div class="confirm-page">
+    <div class="confirm-wrap">
+        <div class="confirm-card">
+
+            <!-- ============================================================
+                 HERO
+            ============================================================ -->
+            <div class="confirm-hero">
+                <div class="check-mark">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </div>
+                <div class="kicker">Order Confirmed</div>
+                <h1>Thank you for your order</h1>
+            </div>
+
+            <!-- ============================================================
+                 BODY
+            ============================================================ -->
+            <div class="confirm-body">
+
+                <p class="confirm-message">
+                    We've received your order and started preparing it.
+                    A confirmation email is on its way to you with all the details.
+                </p>
+
+                <div class="order-number">
+                    <div class="label">Order Number</div>
+                    <div class="value">@Model</div>
+                </div>
+
+                <div class="info-strip">
+                    <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                    <div>
+                        <strong>What's next?</strong><br />
+                        We'll send you a shipping confirmation as soon as your order leaves our shelves.
+                    </div>
+                </div>
+
+                <div class="confirm-actions">
+                    <a asp-area="Customer"
+                       asp-controller="Home"
+                       asp-action="Index"
+                       class="btn-primary-lg">
+                        <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+                        Continue Shopping
+                    </a>
+                    <a asp-area="Customer"
+                       asp-controller="Order"
+                       asp-action="Index"
+                       class="btn-ghost-lg">
+                        <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+                        View My Orders
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

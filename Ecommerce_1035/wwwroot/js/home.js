@@ -11,10 +11,6 @@
     let table = null;
     let searchFilterFn = null;
 
-    /**
-     * Custom search predicate for title/author filtering.
-     * Reads term + selected filter type each draw.
-     */
     function buildSearchFilter() {
         return function (settings, searchData, index) {
             if (settings.sTableId !== 'tblData') return true;
@@ -47,15 +43,10 @@
         };
     }
 
-    /**
-     * Replace DataTables' default "Search:" label + input with
-     * a Bootstrap input-group: [type select] [input] [button].
-     */
     function decorateFilterBox() {
         const $filter = $(`${TABLE_SELECTOR}_filter`);
         if (!$filter.length) return;
 
-        // Remove stray text nodes (the "Search:" label)
         $filter.contents()
             .filter(function () { return this.nodeType === 3; })
             .remove();
@@ -68,7 +59,7 @@
                     placeholder: 'Search...',
                     'aria-label': 'Search books'
                 })
-                .css('max-width', '220px')
+                .css('max-width', '200px')
                 .wrap('<div class="input-group d-inline-flex w-auto align-middle"></div>')
                 .after(
                     `<button class="btn btn-primary" id="btnSearch" type="button" aria-label="Search">
@@ -77,12 +68,11 @@
                 );
         }
 
-        // Insert the filter-type select before the input group (once)
         if (!$(FILTER_TYPE_SELECTOR).length) {
             $input.parent().before(`
                 <select id="filterType"
                         class="form-select d-inline-block w-auto me-2"
-                        style="height:38px;"
+                        style="height:34px;"
                         aria-label="Filter field">
                     <option value="all">Show All</option>
                     <option value="title">Title</option>
@@ -91,7 +81,6 @@
             `);
         }
 
-        // Wire events once (off first, in case init runs twice)
         $input.off('keyup.dtSearch').on('keyup.dtSearch', function (e) {
             if (e.key === 'Enter') {
                 table.draw();
@@ -109,8 +98,8 @@
 
         table = $table.DataTable({
             order: [],
-            pageLength: 4,
-            lengthMenu: [4, 8, 12, 16],
+            pageLength: 8,
+            lengthMenu: [8, 12, 16, 20],
             autoWidth: false,
             responsive: true,
             language: {
@@ -127,14 +116,10 @@
             initComplete: decorateFilterBox
         });
 
-        // Register custom search predicate (once)
         searchFilterFn = buildSearchFilter();
         $.fn.dataTable.ext.search.push(searchFilterFn);
     }
 
-    /**
-     * Clean up when navigating away (SPA-style hosts, Turbo, etc.)
-     */
     function destroy() {
         if (searchFilterFn && $.fn.dataTable) {
             const idx = $.fn.dataTable.ext.search.indexOf(searchFilterFn);
@@ -151,7 +136,6 @@
         initDataTable();
     });
 
-    // Expose for debugging / manual teardown
     window.homePage = { destroy };
 
 })(window.jQuery);

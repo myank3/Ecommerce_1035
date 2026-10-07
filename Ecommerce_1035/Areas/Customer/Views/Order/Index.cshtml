@@ -36,7 +36,7 @@
                         <td>@order.OrderDate.ToString("MMM d, yyyy")</td>
                         <td>@order.OrderStatus</td>
                         <td>@order.PaymentStatus</td>
-                        <td class="text-end">@order.OrderTotal.ToString("C")</td>
+                        <td class="text-end">₹ @order.OrderTotal.ToString("0.00")</td>
                         <td class="text-end">
                             <a asp-action="Details" asp-route-id="@order.Id"
                                class="btn btn-sm btn-outline-primary">View</a>

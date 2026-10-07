@@ -8,5 +8,6 @@ namespace Ecommerce_1035.Models.Models.ViewModel
     {
         public IEnumerable<ShoppingCart> ListCart { get; set; }
         public OrderHeader OrderHeader { get; set; }
+        public string? PaymentMethod { get; set; }
     }
 }

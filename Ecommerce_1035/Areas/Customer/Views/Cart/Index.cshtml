@@ -3,7 +3,7 @@
 @section Head {
     <style>
         /* ============================================================
-                   CART PAGE (styling only — logic untouched)
+                   CART PAGE
                 ============================================================ */
         .cart-page {
             --brand-1: #6c2bd9;
@@ -152,7 +152,6 @@
                     color: var(--ink);
                 }
 
-            /* Custom checkbox (same style as the rest of the site) */
             .cart-page .form-check-input {
                 appearance: none;
                 -webkit-appearance: none;
@@ -210,7 +209,6 @@
                     background: var(--paper);
                 }
 
-            /* ---------- Title & description ---------- */
             .cart-page .item-title {
                 font-family: var(--serif);
                 font-size: 1.15rem;
@@ -236,7 +234,6 @@
                 overflow: hidden;
             }
 
-            /* ---------- Price / total ---------- */
             .cart-page .price-cell {
                 font-family: var(--serif);
                 font-size: 1.05rem;
@@ -408,7 +405,6 @@
                     font-size: 14px;
                 }
 
-        /* ---------- Responsive ---------- */
         @@media (max-width: 900px) {
             .cart-page .cart-footer {
                 flex-direction: column;
@@ -430,10 +426,6 @@
                 padding: 16px 20px;
             }
 
-                .cart-page .cart-header .title {
-                    font-size: 1.15rem;
-                }
-
             .cart-page .cart-table tbody td {
                 padding: 16px 12px;
             }
@@ -445,10 +437,6 @@
             .cart-page .item-cell img {
                 width: 56px;
                 height: 76px;
-            }
-
-            .cart-page .item-title {
-                font-size: 1rem;
             }
 
             .cart-page .item-desc {
@@ -480,13 +468,11 @@
 }
 
 <div class="cart-page">
-    <form method="get" asp-action="summary">
+    <form method="get" asp-area="Customer" asp-controller="Cart" asp-action="summary">
         <div class="cart-container">
             <div class="cart-card">
 
-                <!-- ============================================================
-                     HEADER
-                ============================================================ -->
+                <!-- Header -->
                 <div class="cart-header">
                     <div class="title">
                         <i class="fa fa-shopping-cart"></i>
@@ -498,9 +484,7 @@
                     </a>
                 </div>
 
-                <!-- ============================================================
-                     TABLE
-                ============================================================ -->
+                <!-- Table -->
                 <div class="cart-table-wrap">
                     <table class="cart-table">
                         <thead>
@@ -520,58 +504,70 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var list in Model.ListCart)
+                            @if (Model.ListCart != null && Model.ListCart.Any())
+                            {
+                                foreach (var list in Model.ListCart)
+                                {
+                                    <tr>
+                                        <td class="pl-4">
+                                            <div class="item-cell">
+                                                <input type="checkbox"
+                                                       name="selectedItem"
+                                                       value="@list.Id"
+                                                       class="form-check-input item-select"
+                                                       checked
+                                                       data-price="@(list.Price * list.Count)" />
+                                                <img src="@list.Product.ImageUrl"
+                                                     alt="Cover of @list.Product.Title"
+                                                     onerror="this.onerror=null;this.src='/images/placeholder-book.png';" />
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <div class="item-title">@list.Product.Title</div>
+                                        </td>
+
+                                        <td>
+                                            <div class="item-desc">
+                                                @Html.Raw(list.Product.Description)
+                                            </div>
+                                        </td>
+
+                                        <td class="price-cell" style="text-align:center;">
+                                            ₹@list.Price.ToString("N2")
+                                        </td>
+
+                                        <td style="text-align:center;">
+                                            <div class="qty-stepper">
+                                                <a asp-action="minus" asp-route-id="@list.Id" aria-label="Decrease quantity">
+                                                    <i class="fa-solid fa-minus"></i>
+                                                </a>
+                                                <span class="val">@list.Count</span>
+                                                <a asp-action="plus" asp-route-id="@list.Id" aria-label="Increase quantity">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+
+                                        <td class="total-cell" style="text-align:right;">
+                                            ₹@((list.Price * list.Count).ToString("N2"))
+                                        </td>
+
+                                        <td style="text-align:center;">
+                                            <a asp-action="delete" asp-route-id="@list.Id"
+                                               class="btn-remove"
+                                               aria-label="Remove @list.Product.Title from cart">
+                                                <i class="fa-solid fa-trash-alt"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
                             {
                                 <tr>
-                                    <td class="pl-4">
-                                        <div class="item-cell">
-                                            <input type="checkbox"
-                                                   name="selectedItem"
-                                                   value="@list.Id"
-                                                   class="form-check-input item-select"
-                                                   checked
-                                                   data-price="@(list.Price * list.Count)" />
-                                            <img src="@list.Product.ImageUrl"
-                                                 alt="Cover of @list.Product.Title" />
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <div class="item-title">@list.Product.Title</div>
-                                    </td>
-
-                                    <td>
-                                        <div class="item-desc">
-                                            @Html.Raw(list.Product.Description)
-                                        </div>
-                                    </td>
-
-                                    <td class="price-cell" style="text-align:center;">
-                                        ₹@list.Price.ToString("N2")
-                                    </td>
-
-                                    <td style="text-align:center;">
-                                        <div class="qty-stepper">
-                                            <a asp-action="minus" asp-route-id="@list.Id" aria-label="Decrease quantity">
-                                                <i class="fa-solid fa-minus"></i>
-                                            </a>
-                                            <span class="val">@list.Count</span>
-                                            <a asp-action="plus" asp-route-id="@list.Id" aria-label="Increase quantity">
-                                                <i class="fa-solid fa-plus"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-
-                                    <td class="total-cell" style="text-align:right;">
-                                        ₹@((list.Price * list.Count).ToString("N2"))
-                                    </td>
-
-                                    <td style="text-align:center;">
-                                        <a asp-action="delete" asp-route-id="@list.Id"
-                                           class="btn-remove"
-                                           aria-label="Remove @list.Product.Title from cart">
-                                            <i class="fa-solid fa-trash-alt"></i>
-                                        </a>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        Your shopping cart is currently empty.
                                     </td>
                                 </tr>
                             }
@@ -579,9 +575,7 @@
                     </table>
                 </div>
 
-                <!-- ============================================================
-                     FOOTER
-                ============================================================ -->
+                <!-- Footer -->
                 <div class="cart-footer">
                     <div class="note">
                         <i class="fa-solid fa-circle-info"></i>
@@ -610,14 +604,13 @@
 
 @section Scripts {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
         toastr.options = {
             "closeButton": true,
             "positionClass": "toast-bottom-center",
-            "timeOut": "500"
+            "timeOut": "2000"
         };
 
         const selectAllBox = document.getElementById("selectAll");
@@ -636,17 +629,21 @@
                 }
             });
 
-            totalText.innerText = totalMoney.toFixed(2);
+            totalText.innerText = totalMoney.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            selectAllBox.checked = (checkedBoxes === itemBoxes.length && itemBoxes.length > 0);
+            if (selectAllBox) {
+                selectAllBox.checked = (checkedBoxes === itemBoxes.length && itemBoxes.length > 0);
+            }
         }
 
-        selectAllBox.addEventListener("change", function () {
-            itemBoxes.forEach(box => {
-                box.checked = selectAllBox.checked;
+        if (selectAllBox) {
+            selectAllBox.addEventListener("change", function () {
+                itemBoxes.forEach(box => {
+                    box.checked = selectAllBox.checked;
+                });
+                updateCart();
             });
-            updateCart();
-        });
+        }
 
         itemBoxes.forEach(box => {
             box.addEventListener("change", updateCart);
@@ -654,10 +651,9 @@
 
         submitBtn.addEventListener("click", function (e) {
             const selectedCount = document.querySelectorAll(".item-select:checked").length;
-
             if (selectedCount === 0) {
                 e.preventDefault();
-                toastr.warning('Please add 1 or more product to continue.', 'Cart is Empty');
+                toastr.warning('Please select at least 1 item to proceed.', 'No items selected');
             }
         });
 

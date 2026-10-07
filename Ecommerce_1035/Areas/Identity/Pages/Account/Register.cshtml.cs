@@ -193,11 +193,19 @@ public class RegisterModel : PageModel
                 if (!await _roleManager.RoleExistsAsync(SD.Role_Individual))
                     await _roleManager.CreateAsync(new IdentityRole(SD.Role_Individual));
 
-                // ============================================================
-                // HARDCODED ADMIN RULE
-                // Only vibeound@gmail.com can ever get the Admin role.
-                // Any other email — regardless of what they post — is denied.
-                // ============================================================
+
+                var userId = await _userManager.GetUserIdAsync(user);
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Page(
+                    "/Account/ConfirmEmail",
+                    pageHandler: null,
+                    values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                    protocol: Request.Scheme)!;
+
+                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
                 const string AdminEmail = "vibeound@gmail.com";
                 var isRootAdmin = string.Equals(
                     Input.Email,
@@ -210,8 +218,6 @@ public class RegisterModel : PageModel
                 }
                 else if (Input.Role == SD.Role_Admin)
                 {
-                    // Someone tried to self-register as admin — refuse silently
-                    // and give them the individual role instead.
                     _logger.LogWarning(
                         "Blocked admin self-registration attempt from {Email}",
                         Input.Email);
@@ -231,15 +237,8 @@ public class RegisterModel : PageModel
                     await _userManager.AddToRoleAsync(user, Input.Role);
                 }
 
-                if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                {
-                    return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-                }
-                else
-                {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
-                }
+                // Redirect straight to ConfirmEmail page
+                return RedirectToPage("ConfirmEmail", new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl });
             }
 
             foreach (var error in result.Errors)

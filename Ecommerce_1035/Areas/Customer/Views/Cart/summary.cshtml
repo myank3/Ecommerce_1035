@@ -31,7 +31,6 @@
             padding: 0 24px;
         }
 
-        /* ---------- Header ---------- */
         .checkout-head {
             display: flex;
             align-items: flex-end;
@@ -88,7 +87,6 @@
                 font-size: 12px;
             }
 
-        /* ---------- Grid ---------- */
         .checkout-grid {
             display: grid;
             grid-template-columns: 1fr 380px;
@@ -96,7 +94,6 @@
             align-items: start;
         }
 
-        /* ---------- Card ---------- */
         .card-block {
             background: #fff;
             border-radius: 14px;
@@ -152,7 +149,6 @@
             padding: 26px;
         }
 
-        /* ---------- Fields ---------- */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -230,7 +226,63 @@
                 padding-left: 4px;
             }
 
-        /* ---------- Items ---------- */
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .payment-option-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 20px;
+            border: 1.5px solid var(--rule);
+            border-radius: 10px;
+            background: var(--paper);
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+            .payment-option-card:hover {
+                border-color: var(--brand-1);
+                background: #fff;
+            }
+
+            .payment-option-card input[type="radio"] {
+                accent-color: var(--brand-1);
+                width: 19px;
+                height: 19px;
+                cursor: pointer;
+                margin: 0;
+            }
+
+            .payment-option-card .payment-meta {
+                flex-grow: 1;
+            }
+
+                .payment-option-card .payment-meta .title {
+                    font-family: var(--sans);
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: var(--ink);
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .payment-option-card .payment-meta .desc {
+                    font-family: var(--sans);
+                    font-size: 12.5px;
+                    color: var(--ink-soft);
+                    margin-top: 3px;
+                }
+
+            .payment-option-card .gateway-badge {
+                font-size: 20px;
+                color: var(--ink-soft);
+            }
+
         .items-list {
             display: flex;
             flex-direction: column;
@@ -315,7 +367,6 @@
             white-space: nowrap;
         }
 
-        /* ---------- Summary ---------- */
         .summary-side {
             position: sticky;
             top: 90px;
@@ -377,7 +428,6 @@
                 font-variant-numeric: tabular-nums;
             }
 
-        /* ---------- Delivery note ---------- */
         .delivery-note {
             display: flex;
             align-items: flex-start;
@@ -402,7 +452,6 @@
                 font-weight: 600;
             }
 
-        /* ---------- CTA ---------- */
         .btn-place {
             display: inline-flex;
             align-items: center;
@@ -449,7 +498,6 @@
                 margin-right: 6px;
             }
 
-        /* ---------- Responsive ---------- */
         @@media (max-width: 900px) {
             .checkout-grid {
                 grid-template-columns: 1fr;
@@ -519,35 +567,38 @@
 <div class="checkout-page">
     <div class="checkout-wrap">
 
-        <!-- ============================================================
-             HEADER
-        ============================================================ -->
         <div class="checkout-head">
             <div>
                 <h1>Review Your Order</h1>
                 <div class="meta">
                     <strong>@totalQty</strong> @(totalQty == 1 ? "book" : "books") ·
-                    <strong>@subtotal.ToString("C")</strong> subtotal
+                    <strong>₹@subtotal.ToString("N2")</strong> subtotal
                 </div>
             </div>
-            <a asp-action="Index" asp-controller="Cart" class="btn-back">
+            <a asp-action="Index" asp-controller="Cart" asp-area="Customer" class="btn-back">
                 <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                 Back to Cart
             </a>
         </div>
 
-        <!-- ============================================================
-             FORM
-        ============================================================ -->
-        <form method="post">
+        <form method="post" asp-action="summary" asp-controller="Cart" asp-area="Customer">
+            @Html.AntiForgeryToken()
+
+            <!-- Carry forward every selected shopping cart item ID -->
+            @if (Model.ListCart != null)
+            {
+                foreach (var item in Model.ListCart)
+                {
+                    <input type="hidden" name="selectedItem" value="@item.Id" />
+                }
+            }
+
             <div class="checkout-grid">
 
-                <!-- ====================================================
-                     LEFT
-                ==================================================== -->
+                <!-- Left Column -->
                 <div>
 
-                    <!-- ---------- Items ---------- -->
+                    <!-- Items List -->
                     <div class="card-block">
                         <div class="block-head">
                             <span class="icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></span>
@@ -572,14 +623,14 @@
                                             <div class="author">by @item.Product.Author</div>
                                             <span class="qty">×<strong>@item.Count</strong></span>
                                         </div>
-                                        <div class="item-price">@lineTotal.ToString("C")</div>
+                                        <div class="item-price">₹@lineTotal.ToString("N2")</div>
                                     </div>
                                 }
                             </div>
                         </div>
                     </div>
 
-                    <!-- ---------- Delivery Details ---------- -->
+                    <!-- Delivery Details -->
                     <div class="card-block">
                         <div class="block-head">
                             <span class="icon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
@@ -593,7 +644,7 @@
                                 <div class="field full">
                                     <label asp-for="OrderHeader.Name">Full Name</label>
                                     <input asp-for="OrderHeader.Name" class="form-control"
-                                           autocomplete="name" placeholder="Recipient's name" />
+                                           autocomplete="name" placeholder="Recipient's name" required />
                                     <i class="fa-solid fa-user field-icon" aria-hidden="true"></i>
                                     <span asp-validation-for="OrderHeader.Name" class="validation-message"></span>
                                 </div>
@@ -601,7 +652,7 @@
                                 <div class="field full">
                                     <label asp-for="OrderHeader.PhoneNumber">Phone</label>
                                     <input asp-for="OrderHeader.PhoneNumber" class="form-control"
-                                           autocomplete="tel" placeholder="Contact number" />
+                                           autocomplete="tel" placeholder="Contact number" required />
                                     <i class="fa-solid fa-phone field-icon" aria-hidden="true"></i>
                                     <span asp-validation-for="OrderHeader.PhoneNumber" class="validation-message"></span>
                                 </div>
@@ -609,7 +660,7 @@
                                 <div class="field full">
                                     <label asp-for="OrderHeader.StreetAddress">Street Address</label>
                                     <input asp-for="OrderHeader.StreetAddress" class="form-control"
-                                           autocomplete="street-address" placeholder="House, building, area" />
+                                           autocomplete="street-address" placeholder="House, building, area" required />
                                     <i class="fa-solid fa-house field-icon" aria-hidden="true"></i>
                                     <span asp-validation-for="OrderHeader.StreetAddress" class="validation-message"></span>
                                 </div>
@@ -617,7 +668,7 @@
                                 <div class="field">
                                     <label asp-for="OrderHeader.City">City</label>
                                     <input asp-for="OrderHeader.City" class="form-control"
-                                           autocomplete="address-level2" placeholder="City" />
+                                           autocomplete="address-level2" placeholder="City" required />
                                     <i class="fa-solid fa-city field-icon" aria-hidden="true"></i>
                                     <span asp-validation-for="OrderHeader.City" class="validation-message"></span>
                                 </div>
@@ -625,7 +676,7 @@
                                 <div class="field">
                                     <label asp-for="OrderHeader.State">State</label>
                                     <input asp-for="OrderHeader.State" class="form-control"
-                                           autocomplete="address-level1" placeholder="State" />
+                                           autocomplete="address-level1" placeholder="State" required />
                                     <i class="fa-solid fa-map field-icon" aria-hidden="true"></i>
                                     <span asp-validation-for="OrderHeader.State" class="validation-message"></span>
                                 </div>
@@ -633,7 +684,7 @@
                                 <div class="field">
                                     <label asp-for="OrderHeader.PostalCode">Postal Code</label>
                                     <input asp-for="OrderHeader.PostalCode" class="form-control"
-                                           autocomplete="postal-code" placeholder="PIN code" />
+                                           autocomplete="postal-code" placeholder="PIN code" required />
                                     <i class="fa-solid fa-hashtag field-icon" aria-hidden="true"></i>
                                     <span asp-validation-for="OrderHeader.PostalCode" class="validation-message"></span>
                                 </div>
@@ -641,11 +692,44 @@
                         </div>
                     </div>
 
+                    <!-- Payment Method Selector -->
+                    <div class="card-block">
+                        <div class="block-head">
+                            <span class="icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
+                            <h2>Payment Method</h2>
+                            <span class="step">Step 3</span>
+                        </div>
+
+                        <div class="block-body">
+                            <div class="payment-options">
+                                <label class="payment-option-card" for="paymentRazorpay">
+                                    <input type="radio" name="paymentMethod" value="Razorpay" id="paymentRazorpay" checked />
+                                    <div class="payment-meta">
+                                        <div class="title">Razorpay</div>
+                                        <div class="desc">UPI (GPay / PhonePe / Paytm), Debit & Credit Cards, NetBanking (INR)</div>
+                                    </div>
+                                    <div class="gateway-badge">
+                                        <i class="fa-solid fa-indian-rupee-sign" aria-hidden="true"></i>
+                                    </div>
+                                </label>
+
+                                <label class="payment-option-card" for="paymentPaypal">
+                                    <input type="radio" name="paymentMethod" value="PayPal" id="paymentPaypal" />
+                                    <div class="payment-meta">
+                                        <div class="title">PayPal</div>
+                                        <div class="desc">International payment accounts & global cards (USD)</div>
+                                    </div>
+                                    <div class="gateway-badge">
+                                        <i class="fa-brands fa-paypal" aria-hidden="true"></i>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- ====================================================
-                     RIGHT — Summary
-                ==================================================== -->
+                <!-- Right Column (Sticky Summary) -->
                 <aside class="summary-side">
                     <div class="card-block">
 
@@ -657,7 +741,7 @@
                         <div class="summary-rows">
                             <div class="summary-row">
                                 <span>Subtotal</span>
-                                <span class="val">@subtotal.ToString("C")</span>
+                                <span class="val">₹@subtotal.ToString("N2")</span>
                             </div>
                             <div class="summary-row">
                                 <span>Shipping</span>
@@ -671,7 +755,7 @@
 
                         <div class="summary-total">
                             <span class="label">Total</span>
-                            <span class="amount">@Model.OrderHeader.OrderTotal.ToString("C")</span>
+                            <span class="amount">₹@Model.OrderHeader.OrderTotal.ToString("N2")</span>
                         </div>
 
                         <div class="delivery-note">
@@ -700,6 +784,54 @@
     </div>
 </div>
 
+<!-- Form submitted by Razorpay JS handler to verify payment -->
+<form id="razorpayForm" method="post" asp-action="RazorpayReturn" asp-controller="Cart" asp-area="Customer">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="razorpay_payment_id" id="rzp_payment_id" />
+    <input type="hidden" name="razorpay_order_id" id="rzp_order_id" />
+    <input type="hidden" name="razorpay_signature" id="rzp_signature" />
+    <input type="hidden" name="orderHeaderId" value="@ViewBag.OrderHeaderId" />
+</form>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    @if (ViewBag.RazorpayOrderId != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var options = {
+                    "key": "@ViewBag.RazorpayKeyId",
+                    "amount": "@ViewBag.AmountInPaise",
+                    "currency": "INR",
+                    "name": "Book-Shelf",
+                    "description": "Order #@ViewBag.OrderHeaderId",
+                    "order_id": "@ViewBag.RazorpayOrderId",
+                    "handler": function (response) {
+                        document.getElementById('rzp_payment_id').value = response.razorpay_payment_id;
+                        document.getElementById('rzp_order_id').value = response.razorpay_order_id;
+                        document.getElementById('rzp_signature').value = response.razorpay_signature;
+                        document.getElementById('razorpayForm').submit();
+                    },
+                    "prefill": {
+                        "name": "@Html.Raw(ViewBag.PrefillName)",
+                        "email": "@Html.Raw(ViewBag.PrefillEmail)",
+                        "contact": "@Html.Raw(ViewBag.PrefillContact)"
+                    },
+                    "theme": {
+                        "color": "#6c2bd9"
+                    },
+                    "modal": {
+                        "ondismiss": function () {
+                            // User voluntarily closed the payment modal
+                        }
+                    }
+                };
+
+                var rzp = new Razorpay(options);
+                rzp.open();
+            });
+        </script>
+    }
 }

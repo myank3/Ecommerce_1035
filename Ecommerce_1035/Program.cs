@@ -5,6 +5,7 @@ using Ecommerce_1035.Models.Models;
 using Ecommerce_1035.Utilities;
 using Ecommerce_1035.Utilities.Service;
 using Ecommerce_1035.Utilities.Service.IService;
+using Ecommerce_1035.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -53,7 +54,8 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddScoped<ITwilioSender, TwilioSender>();
 builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
 builder.Services.AddScoped<ISmsSender, SmsSender>();
-builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 // MVC + Razor Pages
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddRazorPages();

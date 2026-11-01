@@ -27,9 +27,9 @@ namespace Ecommerce_1035.Areas.Customer.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return Challenge(); // not signed in → trigger auth challenge
+                return Challenge();
 
-            // Only this user's orders
+            // Do NOT pre-filter by OrderStatus. Customers must see ALL their orders.
             var orders = _work.OrderHeader
                 .GetAll(o => o.ApplicationUserId == userId,
                             includeProperties: "ApplicationUser")
@@ -49,7 +49,7 @@ namespace Ecommerce_1035.Areas.Customer.Controllers
                 orders = orders.Where(o => o.OrderDate.Date <= to.Date);
             }
 
-            // Optional status filter
+            // Optional status filter — only applied when provided.
             if (!string.IsNullOrEmpty(status))
             {
                 orders = orders.Where(o => o.OrderStatus == status);
@@ -69,7 +69,6 @@ namespace Ecommerce_1035.Areas.Customer.Controllers
                 .FirstOrDefault(o => o.Id == id && o.ApplicationUserId == userId,
                                  includedProperties: "ApplicationUser");
 
-            // If not found OR it belongs to someone else → 404
             if (order == null)
                 return NotFound();
 
@@ -84,9 +83,63 @@ namespace Ecommerce_1035.Areas.Customer.Controllers
             return View(vm);
         }
 
-        #region APIs
+         
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Reorder(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return Challenge();
 
-        // GET: /Customer/Order/GetAll?fromDate=&toDate=&status=
+            var order = _work.OrderHeader
+                .FirstOrDefault(o => o.Id == id && o.ApplicationUserId == userId);
+
+            if (order == null)
+                return NotFound();
+
+            var details = _work.OrderDetail
+                .GetAll(d => d.OrderHeaderId == id, includeProperties: "Product")
+                .ToList();
+
+            if (!details.Any())
+            {
+                TempData["error"] = "This order has no items to reorder.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var cart = _work.ShoppingCart
+                .GetAll(c => c.ApplicationUserId == userId)
+                .ToList();
+
+            foreach (var d in details)
+            {
+                if (d.Product == null) continue;
+
+                var existing = cart.FirstOrDefault(c => c.ProductId == d.ProductId);
+                if (existing != null)
+                {
+                    existing.Count += d.Count;
+                }
+                else
+                {
+                    _work.ShoppingCart.Add(new ShoppingCart
+                    {
+                        ProductId = d.ProductId,
+                        ApplicationUserId = userId,
+                        Count = d.Count
+                    });
+                }
+            }
+
+            _work.Save();
+
+            TempData["success"] = $"{details.Count} item(s) added to your cart.";
+            return RedirectToAction("Index", "Cart", new { area = "Customer" });
+        }
+
+        #region APIs
+         
         [HttpGet]
         public IActionResult GetAll(string? fromDate, string? toDate, string? status)
         {

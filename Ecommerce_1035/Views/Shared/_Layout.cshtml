@@ -682,6 +682,7 @@
                     aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="fa-solid fa-bars" aria-hidden="true"></i>
             </button>
+            
 
             <ul class="nav-menu" id="navMenu">
                 <li>
@@ -691,16 +692,28 @@
                     </a>
                 </li>
 
-                @* ---------- Customer: My Orders ---------- *@
-                @if (isAuthenticated && !isStaff)
-                {
-                    <li>
-                        <a asp-area="Customer" asp-controller="Order" asp-action="Index"
-                           class="@Active("Order", null, "Customer")">
-                            My Orders
-                        </a>
-                    </li>
-                }
+               @* ---------- Customer: My Orders (dropdown) ---------- *@
+@if (isAuthenticated && !isStaff)
+{
+    <li class="has-menu" data-menu>
+        <button type="button" class="nav-trigger @Active("Order", null, "Customer")"
+                aria-haspopup="true" aria-expanded="false">
+            My Orders <i class="fa-solid fa-chevron-down caret" aria-hidden="true"></i>
+        </button>
+        <ul class="submenu">
+            <li>
+                <a asp-area="Customer" asp-controller="Order" asp-action="Index">
+                    <i class="fa-solid fa-list-ul"></i>Order Management
+                </a>
+            </li>
+            <li>
+                <a asp-area="Customer" asp-controller="Order" asp-action="Summary">
+                    <i class="fa-solid fa-receipt"></i>Order Summary
+                </a>
+            </li>
+        </ul>
+    </li>
+}
 
                 @if (isEmployee || isAdmin)
                 {
@@ -743,6 +756,11 @@
                aria-label="Cart, @cartCount items">
                 <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
                 <span class="count">@cartCount</span>
+            </a>
+             <a class="cart-link" asp-area="Customer" asp-controller="Order" asp-action="Index"
+             > My Orders
+                <i class="fa-solid shopping-bag" aria-hidden="true"></i>
+               
             </a>
 
             <div class="login-slot">

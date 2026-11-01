@@ -1,14 +1,32 @@
-﻿@model IEnumerable<Ecommerce_1035.Models.Models.OrderHeader>
+﻿@using Ecommerce_1035.Utilities
+@model IEnumerable<Ecommerce_1035.Models.Models.OrderHeader>
 @{
     ViewData["Title"] = "My Orders";
+
+    string Relative(DateTime dt)
+    {
+        var ts = DateTime.UtcNow - dt.ToUniversalTime();
+        if (ts.TotalSeconds < 60)
+            return ts.TotalSeconds <= 1 ? "just now" : $"{(int)ts.TotalSeconds} seconds ago";
+        if (ts.TotalMinutes < 60)
+            return $"{(int)ts.TotalMinutes} minute{((int)ts.TotalMinutes == 1 ? "" : "s")} ago";
+        if (ts.TotalHours < 24)
+            return $"{(int)ts.TotalHours} hour{((int)ts.TotalHours == 1 ? "" : "s")} ago";
+        if (ts.TotalDays < 30)
+            return $"{(int)ts.TotalDays} day{((int)ts.TotalDays == 1 ? "" : "s")} ago";
+        if (ts.TotalDays < 365)
+            return $"{(int)(ts.TotalDays / 30)} month{((int)(ts.TotalDays / 30) == 1 ? "" : "s")} ago";
+        return $"{(int)(ts.TotalDays / 365)} year{((int)(ts.TotalDays / 365) == 1 ? "" : "s")} ago";
+    }
 }
 
 <div class="container my-4">
-    <h1 class="mb-4">My Orders</h1>
+    <h1 class="mb-4"><i class="bi bi-bag-check me-2"></i>My Orders</h1>
 
     @if (!Model.Any())
     {
         <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox display-1 d-block mb-3"></i>
             <h3>No orders yet</h3>
             <p>Once you place an order, it will appear here.</p>
             <a asp-area="Customer" asp-controller="Home" asp-action="Index"
@@ -17,33 +35,102 @@
     }
     else
     {
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>Order #</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                    <th class="text-end">Total</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var order in Model)
+        <div class="row g-3">
+            @foreach (var order in Model)
+            {
+                var statusClass = order.OrderStatus switch
                 {
-                    <tr>
-                        <td>#@order.Id</td>
-                        <td>@order.OrderDate.ToString("MMM d, yyyy")</td>
-                        <td>@order.OrderStatus</td>
-                        <td>@order.PaymentStatus</td>
-                        <td class="text-end">₹ @order.OrderTotal.ToString("0.00")</td>
-                        <td class="text-end">
-                            <a asp-action="Details" asp-route-id="@order.Id"
-                               class="btn btn-sm btn-outline-primary">View</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                    SD.OrderStatusApproved => "bg-success-subtle text-success border-success-subtle",
+                    SD.OrderStatusPending => "bg-warning-subtle text-warning-emphasis border-warning-subtle",
+                    SD.OrderStatusShipped => "bg-info-subtle text-info-emphasis border-info-subtle",
+                    SD.OrderStatusCancelled => "bg-danger-subtle text-danger border-danger-subtle",
+                    SD.OrderStatusRefunded => "bg-secondary-subtle text-secondary border-secondary-subtle",
+                    _ => "bg-primary-subtle text-primary border-primary-subtle"
+                };
+
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 order-card">
+                        <div class="card-body">
+                            <div class="row align-items-center g-3">
+                                <div class="col-md-2">
+                                    <div class="text-muted small text-uppercase">Order #</div>
+                                    <div class="fw-bold fs-5">#@order.Id</div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="text-muted small text-uppercase">Placed</div>
+                                    <div>@order.OrderDate.ToString("MMM d, yyyy")</div>
+                                    <small class="text-muted" title="@order.OrderDate.ToString("f")">
+                                        <i class="bi bi-clock me-1"></i>@Relative(order.OrderDate)
+                                    </small>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="text-muted small text-uppercase">Status</div>
+                                    <span class="badge rounded-pill border @statusClass px-3 py-2">
+                                        @order.OrderStatus
+                                    </span>
+                                </div>
+
+                                <div class="col-md-2 text-md-end">
+                                    <div class="text-muted small text-uppercase">Total</div>
+                                    <div class="fw-bold text-primary">₹ @order.OrderTotal.ToString("0.00")</div>
+                                </div>
+
+                                <div class="col-md-2 text-md-end">
+                                    <div class="d-grid gap-1">
+                                        <a asp-action="Details" asp-route-id="@order.Id"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </a>
+                                        @if (order.OrderStatus != SD.OrderStatusCancelled &&
+                                             order.OrderStatus != SD.OrderStatusRefunded)
+                                        {
+                                            <form asp-action="Reorder" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@order.Id" />
+                                                <button type="submit" class="btn btn-sm btn-success w-100">
+                                                    <i class="bi bi-arrow-repeat me-1"></i>Reorder
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (order.OrderStatus == SD.OrderStatusCancelled)
+                            {
+                                <div class="alert alert-danger mt-3 mb-0 py-2 small">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    <strong>Cancelled</strong>
+                                    @if (!string.IsNullOrEmpty(order.Carrier))
+                                    {
+                                        <span>— @order.Carrier</span>
+                                    }
+                                </div>
+                            }
+                            @if (order.OrderStatus == SD.OrderStatusRefunded)
+                            {
+                                <div class="alert alert-secondary mt-3 mb-0 py-2 small">
+                                    <i class="bi bi-cash-coin me-1"></i>
+                                    <strong>Refunded</strong> on @order.PaymentDate.ToString("MMM d, yyyy")
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     }
 </div>
+
+<style>
+    .order-card {
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.08) !important;
+        }
+</style>

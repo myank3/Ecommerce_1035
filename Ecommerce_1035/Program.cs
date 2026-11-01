@@ -25,22 +25,30 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
-        options.ClientSecret = "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";
-        options.ClientId = "331840492239-vc31bdovnf2c9t2aqqt7ls90q29mno08.apps.googleusercontent.com";
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+            ?? throw new InvalidOperationException("Authentication:Google:ClientId not configured.");
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+            ?? throw new InvalidOperationException("Authentication:Google:ClientSecret not configured.");
     })
     .AddLinkedIn(options =>
     {
-        options.ClientId = "77pwu9vr7yf3zt";
-        options.ClientSecret = "WPL_AP1.3G9A6exLXPIEninN.eHrIcA==";
+        options.ClientId = builder.Configuration["Authentication:LinkedIn:ClientId"]
+            ?? throw new InvalidOperationException("Authentication:LinkedIn:ClientId not configured.");
+        options.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"]
+            ?? throw new InvalidOperationException("Authentication:LinkedIn:ClientSecret not configured.");
     });
+
 builder.Services.AddSingleton(sp =>
 {
     var config = sp.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>();
-    var clientId = config["PayPal:ClientId"];
-    var clientSecret = config["PayPal:ClientSecret"];
+    var clientId = config["PayPal:ClientId"]
+        ?? throw new InvalidOperationException("PayPal:ClientId not configured.");
+    var clientSecret = config["PayPal:ClientSecret"]
+        ?? throw new InvalidOperationException("PayPal:ClientSecret not configured.");
 
     return new PaypalServerSdkClient.Builder()
         .ClientCredentialsAuth(
@@ -56,6 +64,7 @@ builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
 builder.Services.AddScoped<ISmsSender, SmsSender>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+
 // MVC + Razor Pages
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddRazorPages();
@@ -65,9 +74,7 @@ builder.Services.AddSession(o =>
     o.IdleTimeout = TimeSpan.FromDays(31);
     o.Cookie.HttpOnly = true;
     o.Cookie.IsEssential = true;
-
 });
-
 
 // Cookie paths
 builder.Services.ConfigureApplicationCookie(options =>
@@ -77,6 +84,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LogoutPath = "/Identity/Account/Logout";
 });
 builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

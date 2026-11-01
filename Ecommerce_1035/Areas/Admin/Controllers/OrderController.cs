@@ -25,6 +25,14 @@ namespace Ecommerce_1035.Areas.Admin.Controllers
 
             return View(orders);
         }
+        public IActionResult Summary()
+        {
+            var orders = _work.OrderHeader
+                .GetAll(includeProperties: "ApplicationUser")
+                .ToList();
+
+            return View(orders);
+        }
 
         public IActionResult Details(int id)
         {

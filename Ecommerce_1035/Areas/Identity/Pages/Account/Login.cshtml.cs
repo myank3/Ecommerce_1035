@@ -100,31 +100,31 @@ public class LoginModel : PageModel
         }
 
         // Step 3: if the user has a phone number → send OTP and redirect to confirm page
-        if (!string.IsNullOrEmpty(user.PhoneNumber))
-        {
+        //if (!string.IsNullOrEmpty(user.PhoneNumber))
+        //{
 
-            var token = await _userManager.GenerateTwoFactorTokenAsync(
-                user, TokenOptions.DefaultPhoneProvider);
+        //    var token = await _userManager.GenerateTwoFactorTokenAsync(
+        //        user, TokenOptions.DefaultPhoneProvider);
 
-            var email = await _userManager.GetEmailAsync(user) ?? string.Empty;
+        //    var email = await _userManager.GetEmailAsync(user) ?? string.Empty;
 
-            await _sms.SendSmsBeeAsync(
-                user.PhoneNumber,
-                email,
-                $"Your Book Store login code is: {token}"
-            );
+        //    await _sms.SendSmsBeeAsync(
+        //        user.PhoneNumber,
+        //        email,
+        //        $"Your Book Store login code is: {token}"
+        //    );
 
-            TempData["LoginUserId"] = user.Id;
-            TempData["LoginReturnUrl"] = returnUrl;
-            TempData["LoginRememberMe"] = Input.RememberMe;
+        //    TempData["LoginUserId"] = user.Id;
+        //    TempData["LoginReturnUrl"] = returnUrl;
+        //    TempData["LoginRememberMe"] = Input.RememberMe;
 
-            return RedirectToPage("./ConfirmPhone", new
-            {
-                area = "Identity",
-                userId = user.Id,
-                returnUrl = returnUrl
-            });
-        }
+        //    return RedirectToPage("./ConfirmPhone", new
+        //    {
+        //        area = "Identity",
+        //        userId = user.Id,
+        //        returnUrl = returnUrl
+        //    });
+        //}
         var result = await _signInManager.PasswordSignInAsync(
             user, Input.Password, Input.RememberMe, lockoutOnFailure: false);
 

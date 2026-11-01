@@ -2,7 +2,6 @@ using Ecommerce_1035.DataAccess.Data;
 using Ecommerce_1035.DataAccess.Repository;
 using Ecommerce_1035.DataAccess.Repository.IRepository;
 using Ecommerce_1035.Models.Models;
-using Ecommerce_1035.Utilities;
 using Ecommerce_1035.Utilities.Service;
 using Ecommerce_1035.Utilities.Service.IService;
 using Ecommerce_1035.Utility;
